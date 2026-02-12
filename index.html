@@ -1,4 +1,4 @@
-<!-- Version 1.1 (Local DB - Detailed) -->
+<!-- Version 1.2 (Local DB - iOS Copy Fix) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -50,7 +50,7 @@
 
         #app {
             width: 100%;
-            max-width: 600px; /* Increased slightly for complex forms */
+            max-width: 600px;
             background-color: var(--bg);
             display: flex;
             flex-direction: column;
@@ -333,6 +333,18 @@
         }
         .btn-delete:hover { color: var(--danger); }
 
+        /* Export Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 200;
+            display: none; align-items: center; justify-content: center; padding: 20px;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal {
+            background: #fff; border-radius: 16px; width: 100%; max-width: 500px;
+            padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: flex; flex-direction: column;
+        }
+
         /* Toast */
         .toast {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
@@ -432,6 +444,18 @@
         </main>
     </div>
 
+    <!-- Export Modal -->
+    <div class="modal-overlay" id="exportModal">
+        <div class="modal">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h2 style="margin:0; font-size:1.1rem; color: var(--primary);">🤖 AI 분석용 데이터</h2>
+                <button class="btn-icon" id="closeExportModal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <textarea id="exportText" readonly style="height:200px; font-size:0.8rem; background:#f9fafb; margin-bottom:15px; border-radius:8px; padding:10px;"></textarea>
+            <button class="btn-save" id="realCopyBtn">📋 클립보드에 복사하기</button>
+        </div>
+    </div>
+
     <div class="toast" id="toast">메시지</div>
 
     <script>
@@ -477,7 +501,13 @@
             setupHabitToggle('english', addEnglishRow);
 
             document.getElementById('saveBtn').addEventListener('click', saveRecord);
-            document.getElementById('exportBtn').addEventListener('click', exportData);
+            document.getElementById('exportBtn').addEventListener('click', prepareExport);
+            
+            // Modal Listeners
+            document.getElementById('closeExportModal').addEventListener('click', () => {
+                 document.getElementById('exportModal').classList.remove('open');
+            });
+            document.getElementById('realCopyBtn').addEventListener('click', executeCopy);
         });
 
         function initDate() {
@@ -754,12 +784,50 @@
             }).join('');
         }
 
-        function exportData() {
+        // --- Export Logic ---
+        function prepareExport() {
             const tx = db.transaction(['entries'], 'readonly');
             tx.objectStore('entries').getAll().onsuccess = (e) => {
                 const data = JSON.stringify(e.target.result, null, 2);
-                navigator.clipboard.writeText(data).then(() => showToast("📋 AI 데이터 복사 완료!"));
+                document.getElementById('exportText').value = data;
+                document.getElementById('exportModal').classList.add('open');
             };
+        }
+
+        function executeCopy() {
+            const textArea = document.getElementById('exportText');
+            
+            // Select text
+            textArea.select();
+            textArea.setSelectionRange(0, 99999); // For Mobile devices
+
+            // Try Modern API first, then Fallback
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(textArea.value)
+                    .then(() => {
+                        showToast("📋 복사 완료!");
+                        document.getElementById('exportModal').classList.remove('open');
+                    })
+                    .catch((err) => {
+                        // If modern API fails (Safari restriction), try execCommand
+                        try {
+                            document.execCommand('copy');
+                            showToast("📋 복사 완료 (Fallback)");
+                            document.getElementById('exportModal').classList.remove('open');
+                        } catch (e) {
+                            showToast("복사 실패. 수동으로 복사해주세요.");
+                        }
+                    });
+            } else {
+                // Fallback for older browsers
+                try {
+                    document.execCommand('copy');
+                    showToast("📋 복사 완료");
+                    document.getElementById('exportModal').classList.remove('open');
+                } catch (e) {
+                    showToast("복사 실패. 수동으로 복사해주세요.");
+                }
+            }
         }
 
         function showToast(msg) {
