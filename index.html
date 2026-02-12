@@ -1,4 +1,4 @@
-<!-- Version 2.0 (Search & Backup Support) -->
+<!-- Version 2.1 (Text Search & UI Fix) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -130,6 +130,8 @@
         /* Inputs */
         input[type="date"], input[type="text"], textarea, select {
             width: 100%;
+            max-width: 100%; /* Fix for iOS overflow */
+            margin: 0;       /* Fix for iOS default margins */
             padding: 12px;
             border: 1px solid var(--border);
             border-radius: 10px;
@@ -138,6 +140,7 @@
             outline: none;
             background: #fff;
             color: var(--text-main);
+            -webkit-appearance: none; /* Remove default iOS styling */
         }
         
         input:focus, textarea:focus, select:focus {
@@ -322,6 +325,13 @@
             gap: 8px;
             align-items: center;
         }
+        
+        /* Flex Input for Search */
+        .search-container input[type="text"] {
+            flex: 1; /* Occupy remaining space */
+            min-width: 0; /* Prevent overflow in flex */
+        }
+
         .btn-small {
             padding: 10px 15px;
             border-radius: 10px;
@@ -492,7 +502,7 @@
                         <i class="fa-solid fa-magnifying-glass"></i> 기록 검색
                     </div>
                     <div class="search-container">
-                        <input type="date" id="searchDateInput" style="padding: 10px;">
+                        <input type="text" id="searchInput" placeholder="내용 검색 (기분, 운동, 한마디 등)">
                         <button class="btn-small btn-primary-outline" id="searchBtn">검색</button>
                         <button class="btn-small btn-secondary" id="searchResetBtn">초기화</button>
                     </div>
@@ -585,6 +595,11 @@
             // Search Actions
             document.getElementById('searchBtn').addEventListener('click', performSearch);
             document.getElementById('searchResetBtn').addEventListener('click', resetSearch);
+            // Allow Enter key in search input
+            document.getElementById('searchInput').addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') performSearch();
+            });
+
             document.getElementById('showMoreBtn').addEventListener('click', () => {
                 showAllHistory = true;
                 renderHistoryList();
@@ -805,30 +820,44 @@
             };
         }
 
-        // --- Search & Filtering ---
+        // --- Search & Filtering (Text Based) ---
         function performSearch() {
-            const date = document.getElementById('searchDateInput').value;
-            if(!date) return showToast("검색할 날짜를 선택하세요.");
+            const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+            if(!keyword) return showToast("검색어를 입력하세요.");
+            
             isSearching = true;
-            renderHistoryList();
+            renderHistoryList(keyword);
         }
 
         function resetSearch() {
-            document.getElementById('searchDateInput').value = '';
+            document.getElementById('searchInput').value = '';
             isSearching = false;
             showAllHistory = false; // Reset pagination too
             renderHistoryList();
         }
 
-        function renderHistoryList() {
+        function renderHistoryList(keyword = '') {
             const container = document.getElementById('historyList');
-            const searchDate = document.getElementById('searchDateInput').value;
             const btnMore = document.getElementById('showMoreBtn');
 
-            // 1. Filter
+            // 1. Filter Logic
             let displayList = allRecordsCache;
-            if(isSearching && searchDate) {
-                displayList = allRecordsCache.filter(r => r.date === searchDate);
+            
+            if(isSearching && keyword) {
+                displayList = allRecordsCache.filter(r => {
+                    // Combine all text fields for search
+                    const searchableText = [
+                        r.date,
+                        r.mood.detail || '',
+                        r.condition.detail || '',
+                        r.reflection || '',
+                        r.habits.prayer.targets.join(' '),
+                        r.habits.english.types.join(' '),
+                        r.habits.exercise.list.map(ex => ex.name).join(' ')
+                    ].join(' ').toLowerCase();
+                    
+                    return searchableText.includes(keyword);
+                });
             }
 
             // 2. Pagination Logic
@@ -846,7 +875,7 @@
 
             // 3. Render
             if(visibleList.length === 0) {
-                container.innerHTML = '<div style="text-align:center; color:#9ca3af; padding:30px;">기록이 없습니다.</div>';
+                container.innerHTML = `<div style="text-align:center; color:#9ca3af; padding:30px;">${isSearching ? '검색 결과가 없습니다.' : '기록이 없습니다.'}</div>`;
                 return;
             }
 
