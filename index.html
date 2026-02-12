@@ -1,0 +1,773 @@
+<!-- Version 1.1 (Local DB - Detailed) -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Everyday Checkup (Local)</title>
+    
+    <!-- PWA Settings -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#4f46e5">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2965/2965300.png">
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #eef2ff;
+            --primary-dark: #4338ca;
+            --text-main: #1f2937;
+            --text-sub: #6b7280;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --border: #e5e7eb;
+            --danger: #ef4444;
+            --danger-bg: #fee2e2;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+
+        #app {
+            width: 100%;
+            max-width: 600px; /* Increased slightly for complex forms */
+            background-color: var(--bg);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--card-bg);
+            padding: 15px 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        h1 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            color: var(--text-sub);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+        .btn-icon:hover {
+            background-color: var(--bg);
+            color: var(--primary);
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            padding-bottom: 100px; 
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+        }
+
+        .section-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-sub);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Inputs */
+        input[type="date"], input[type="text"], textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            outline: none;
+            background: #fff;
+            color: var(--text-main);
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px var(--primary-light);
+        }
+
+        textarea {
+            height: 80px;
+            resize: none;
+        }
+
+        /* Chips Grid (Mood/Condition) */
+        .chip-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .chip {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 5px;
+            text-align: center;
+            cursor: pointer;
+            background: #fff;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .chip span.icon { font-size: 1.5rem; }
+        .chip span.text { font-size: 0.8rem; font-weight: 500; color: var(--text-sub); }
+
+        .chip.selected {
+            background-color: var(--primary-light);
+            border-color: var(--primary);
+        }
+        .chip.selected span.text { color: var(--primary); }
+
+        /* Habit Toggles & Sub-sections */
+        .habit-block {
+            border-bottom: 1px solid #f3f4f6;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .habit-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+        .habit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0 10px 0;
+            cursor: pointer;
+        }
+        
+        .habit-label {
+            font-size: 1rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .habit-icon { width: 24px; text-align: center; font-size: 1.2rem; }
+
+        .toggle-switch {
+            width: 50px;
+            height: 28px;
+            background-color: #e5e7eb;
+            border-radius: 25px;
+            position: relative;
+            transition: background-color 0.3s;
+            pointer-events: none; /* Handled by parent click */
+        }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 24px;
+            height: 24px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .toggle-switch.active { background-color: var(--primary); }
+        .toggle-switch.active::after { transform: translateX(22px); }
+
+        /* Sub-forms (Dynamic lists) */
+        .sub-form {
+            display: none;
+            margin-top: 10px;
+            padding-left: 10px;
+            border-left: 2px solid var(--primary-light);
+            animation: fadeIn 0.3s;
+        }
+        .sub-form.open { display: block; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dynamic-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .dynamic-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            background: #f9fafb;
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .btn-add {
+            width: 100%;
+            padding: 8px;
+            margin-top: 8px;
+            background-color: #fff;
+            border: 1px dashed #cbd5e1;
+            border-radius: 8px;
+            color: #64748b;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-add:hover { border-color: var(--primary); color: var(--primary); }
+
+        .btn-remove {
+            background: var(--danger-bg);
+            border: none;
+            border-radius: 6px;
+            color: var(--danger);
+            cursor: pointer;
+            padding: 8px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* Exercise Specifics */
+        .exercise-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: #f9fafb;
+            padding: 10px;
+            border-radius: 8px;
+            position: relative;
+        }
+        .exercise-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .exercise-details { display: flex; gap: 8px; }
+
+        .running-options { display: none; gap: 8px; margin-top: 4px; }
+        .running-options.active { display: flex; }
+
+        /* Save Button */
+        .btn-save {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+            transition: transform 0.1s;
+        }
+        .btn-save:active { transform: scale(0.98); }
+
+        /* History */
+        .history-section { margin-top: 30px; }
+        .history-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--primary);
+            position: relative;
+        }
+        .h-row { margin-bottom: 6px; font-size: 0.9rem; color: #4b5563; }
+        .h-row i { width: 20px; text-align: center; color: var(--primary); margin-right: 5px; }
+        .h-detail-text { font-size: 0.8rem; color: var(--text-sub); margin-left: 28px; display: block; margin-top: -4px; margin-bottom: 8px;}
+        .h-date { font-weight: 700; color: var(--text-main); margin-bottom: 10px; display: block; font-size: 1rem; }
+        .btn-delete {
+            position: absolute;
+            top: 10px; right: 10px;
+            background: none; border: none; color: #d1d5db;
+            cursor: pointer; padding: 5px;
+        }
+        .btn-delete:hover { color: var(--danger); }
+
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.8); color: white; padding: 10px 20px;
+            border-radius: 20px; font-size: 0.9rem; opacity: 0; pointer-events: none;
+            transition: opacity 0.3s; z-index: 100;
+        }
+        .toast.show { opacity: 1; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1><i class="fa-solid fa-calendar-check"></i> Everyday Checkup</h1>
+            <button class="btn-icon" id="exportBtn" title="AI 데이터 복사">
+                <i class="fa-solid fa-robot"></i>
+            </button>
+        </header>
+
+        <main>
+            <!-- Date -->
+            <div class="card">
+                <div class="section-title"><i class="fa-regular fa-clock"></i> 날짜 선택</div>
+                <input type="date" id="dateInput">
+            </div>
+
+            <!-- Mood -->
+            <div class="card">
+                <div class="section-title"><i class="fa-regular fa-face-smile"></i> 오늘의 기분</div>
+                <div class="chip-grid" id="moodContainer"></div>
+                <input type="text" id="moodDetail" placeholder="기분을 자세히 설명해주세요 (선택)">
+            </div>
+
+            <!-- Condition -->
+            <div class="card">
+                <div class="section-title"><i class="fa-solid fa-heart-pulse"></i> 몸 컨디션</div>
+                <div class="chip-grid" id="conditionContainer"></div>
+                <input type="text" id="conditionDetail" placeholder="몸 상태를 자세히 설명해주세요 (선택)">
+            </div>
+
+            <!-- Habits -->
+            <div class="card">
+                <div class="section-title"><i class="fa-solid fa-check-double"></i> 습관 체크</div>
+                
+                <!-- Prayer -->
+                <div class="habit-block">
+                    <div class="habit-header" id="header-prayer">
+                        <div class="habit-label"><span class="habit-icon">🙏</span> 기도</div>
+                        <div class="toggle-switch" id="toggle-prayer"></div>
+                    </div>
+                    <div class="sub-form" id="sub-prayer">
+                        <div id="prayerList" class="dynamic-list"></div>
+                        <button class="btn-add" onclick="addPrayerRow()">+ 기도 대상 추가</button>
+                    </div>
+                </div>
+
+                <!-- Exercise -->
+                <div class="habit-block">
+                    <div class="habit-header" id="header-exercise">
+                        <div class="habit-label"><span class="habit-icon">💪</span> 운동</div>
+                        <div class="toggle-switch" id="toggle-exercise"></div>
+                    </div>
+                    <div class="sub-form" id="sub-exercise">
+                        <div id="exerciseList" class="dynamic-list"></div>
+                        <button class="btn-add" onclick="addExerciseRow()">+ 운동 추가</button>
+                    </div>
+                </div>
+
+                <!-- English -->
+                <div class="habit-block">
+                    <div class="habit-header" id="header-english">
+                        <div class="habit-label"><span class="habit-icon">📚</span> 영어 공부</div>
+                        <div class="toggle-switch" id="toggle-english"></div>
+                    </div>
+                    <div class="sub-form" id="sub-english">
+                        <div id="englishList" class="dynamic-list"></div>
+                        <button class="btn-add" onclick="addEnglishRow()">+ 공부 형태 추가</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reflection -->
+            <div class="card">
+                <div class="section-title"><i class="fa-regular fa-comment-dots"></i> 오늘의 한마디</div>
+                <textarea id="reflectionInput" placeholder="오늘 하루 느낀 점, 감사한 점, 반성할 점 등을 자유롭게 적어주세요."></textarea>
+            </div>
+
+            <button class="btn-save" id="saveBtn">기록 저장하기</button>
+
+            <!-- History -->
+            <div class="history-section">
+                <div class="section-title" style="padding: 0 5px;">
+                    <i class="fa-solid fa-clock-rotate-left"></i> 지난 기록
+                </div>
+                <div id="historyList"></div>
+            </div>
+        </main>
+    </div>
+
+    <div class="toast" id="toast">메시지</div>
+
+    <script>
+        // --- Data ---
+        const MOODS = [
+            { id: 'joy', label: '기쁨', icon: '🥰' },
+            { id: 'peace', label: '평온', icon: '😌' },
+            { id: 'normal', label: '보통', icon: '😐' },
+            { id: 'sad', label: '슬픔', icon: '😢' },
+            { id: 'angry', label: '화남', icon: '😠' },
+            { id: 'tired', label: '피곤', icon: '😫' }
+        ];
+        const CONDITIONS = [
+            { id: 'best', label: '최상', icon: '💪' },
+            { id: 'good', label: '좋음', icon: '👍' },
+            { id: 'normal', label: '보통', icon: '👌' },
+            { id: 'bad', label: '나쁨', icon: '👎' },
+            { id: 'sick', label: '아픔', icon: '🤒' },
+        ];
+        const PRAYER_TARGETS = ["나 자신", "준성이형", "가족", "배우자/연인", "친구/지인", "교회/공동체", "나라/세계", "직장/동료", "기타"];
+        const ENGLISH_TYPES = ["쉐도잉/스피킹", "리스닝/듣기", "단어/어휘", "독해/원서", "문법/작문", "화상영어", "미드/영화", "기타"];
+        const EXERCISE_NAMES = ["스쿼트", "데드리프트", "벤치프레스", "오버헤드프레스", "풀업/턱걸이", "푸쉬업", "런닝/조깅", "사이클", "플랭크", "덤벨컬", "레그프레스", "래트풀다운", "기타"];
+
+        // Generators
+        const WEIGHT_OPTIONS = ["맨몸", ...Array.from({length:10},(_,i)=>`${i+1}kg`), ...Array.from({length:10},(_,i)=>`${12+i*2}kg`), ...Array.from({length:14},(_,i)=>`${35+i*5}kg`)];
+        const REP_OPTIONS = [...Array.from({length:15},(_,i)=>`${i+1}회`), "20회", "30회", "실패지점까지"];
+        const DURATION_OPTIONS = ["10분", "20분", "30분", "40분", "50분", "60분", "90분", "120분"];
+
+        // --- State ---
+        let selectedMood = 'peace';
+        let selectedCondition = 'normal';
+        let db;
+
+        // --- Init ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initDB();
+            initDate();
+            renderChips('moodContainer', MOODS, selectedMood, (id) => selectedMood = id);
+            renderChips('conditionContainer', CONDITIONS, selectedCondition, (id) => selectedCondition = id);
+            
+            setupHabitToggle('prayer', addPrayerRow);
+            setupHabitToggle('exercise', addExerciseRow);
+            setupHabitToggle('english', addEnglishRow);
+
+            document.getElementById('saveBtn').addEventListener('click', saveRecord);
+            document.getElementById('exportBtn').addEventListener('click', exportData);
+        });
+
+        function initDate() {
+            document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+        }
+
+        // --- UI Rendering ---
+        function renderChips(containerId, items, initialId, callback) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            items.forEach(item => {
+                const el = document.createElement('div');
+                el.className = `chip ${item.id === initialId ? 'selected' : ''}`;
+                el.innerHTML = `<span class="icon">${item.icon}</span><span class="text">${item.label}</span>`;
+                el.onclick = () => {
+                    Array.from(container.children).forEach(c => c.classList.remove('selected'));
+                    el.classList.add('selected');
+                    callback(item.id);
+                };
+                container.appendChild(el);
+            });
+        }
+
+        function setupHabitToggle(key, addFn) {
+            const header = document.getElementById(`header-${key}`);
+            const toggle = document.getElementById(`toggle-${key}`);
+            const sub = document.getElementById(`sub-${key}`);
+            const list = document.getElementById(`${key}List`);
+
+            header.addEventListener('click', () => {
+                toggle.classList.toggle('active');
+                sub.classList.toggle('open');
+                
+                // Auto add first row if empty when opening
+                if (toggle.classList.contains('active') && list.children.length === 0) {
+                    addFn();
+                }
+            });
+        }
+
+        // --- Dynamic Rows ---
+        function createSelect(options) {
+            return `<select>${options.map(o => `<option value="${o}">${o}</option>`).join('')}</select>`;
+        }
+
+        function addPrayerRow() {
+            const list = document.getElementById('prayerList');
+            const row = document.createElement('div');
+            row.className = 'dynamic-row';
+            row.innerHTML = `
+                <select class="prayer-target" style="flex:1">${PRAYER_TARGETS.map(t => `<option value="${t}">${t}</option>`).join('')}</select>
+                <button class="btn-remove" onclick="this.parentNode.remove()"><i class="fa-solid fa-xmark"></i></button>
+            `;
+            list.appendChild(row);
+        }
+
+        function addEnglishRow() {
+            const list = document.getElementById('englishList');
+            const row = document.createElement('div');
+            row.className = 'dynamic-row';
+            row.innerHTML = `
+                <select class="english-type" style="flex:1">${ENGLISH_TYPES.map(t => `<option value="${t}">${t}</option>`).join('')}</select>
+                <button class="btn-remove" onclick="this.parentNode.remove()"><i class="fa-solid fa-xmark"></i></button>
+            `;
+            list.appendChild(row);
+        }
+
+        function addExerciseRow() {
+            const list = document.getElementById('exerciseList');
+            const row = document.createElement('div');
+            row.className = 'exercise-row';
+            
+            const nameOpts = EXERCISE_NAMES.map(n => `<option value="${n}">${n}</option>`).join('');
+            const weightOpts = WEIGHT_OPTIONS.map(w => `<option value="${w}">${w}</option>`).join('');
+            const repOpts = REP_OPTIONS.map(r => `<option value="${r}">${r}</option>`).join('');
+            const durationOpts = DURATION_OPTIONS.map(d => `<option value="${d}">${d}</option>`).join('');
+
+            row.innerHTML = `
+                <div class="exercise-header">
+                    <select class="ex-name" style="flex:1">${nameOpts}</select>
+                    <button class="btn-remove" onclick="this.closest('.exercise-row').remove()"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="running-options">
+                    <select class="ex-place" style="flex:1"><option value="실외">실외 🌳</option><option value="실내">실내 🏃</option></select>
+                </div>
+                <div class="exercise-details">
+                    <div style="flex:1" class="weight-box">
+                        <select class="ex-weight" style="text-align:center">${weightOpts}</select>
+                    </div>
+                    <div style="flex:1" class="rep-box">
+                        <select class="ex-reps" style="text-align:center">${repOpts}</select>
+                    </div>
+                     <div style="flex:1; display:none;" class="duration-box">
+                        <select class="ex-duration" style="text-align:center">${durationOpts}</select>
+                    </div>
+                </div>
+            `;
+
+            const nameSel = row.querySelector('.ex-name');
+            const runOpts = row.querySelector('.running-options');
+            const weightBox = row.querySelector('.weight-box');
+            const repBox = row.querySelector('.rep-box');
+            const durBox = row.querySelector('.duration-box');
+
+            nameSel.addEventListener('change', (e) => {
+                if(e.target.value === '런닝/조깅') {
+                    runOpts.classList.add('active');
+                    weightBox.style.display = 'none';
+                    repBox.style.display = 'none';
+                    durBox.style.display = 'block';
+                } else {
+                    runOpts.classList.remove('active');
+                    weightBox.style.display = 'block';
+                    repBox.style.display = 'block';
+                    durBox.style.display = 'none';
+                }
+            });
+
+            list.appendChild(row);
+        }
+
+
+        // --- IndexedDB ---
+        function initDB() {
+            const request = indexedDB.open('EverydayCheckupDB_V2', 1); // V2 for schema change (though schema-less object store)
+            request.onerror = (e) => console.error(e);
+            request.onupgradeneeded = (e) => {
+                db = e.target.result;
+                if (!db.objectStoreNames.contains('entries')) {
+                    db.createObjectStore('entries', { keyPath: 'id', autoIncrement: true });
+                }
+            };
+            request.onsuccess = (e) => {
+                db = e.target.result;
+                loadRecords();
+            };
+        }
+
+        function saveRecord() {
+            const date = document.getElementById('dateInput').value;
+            if(!date) return showToast("날짜를 선택해주세요.");
+
+            // Gather Data
+            const moodDetail = document.getElementById('moodDetail').value;
+            const condDetail = document.getElementById('conditionDetail').value;
+            const reflection = document.getElementById('reflectionInput').value;
+
+            // Habits
+            const prayerActive = document.getElementById('toggle-prayer').classList.contains('active');
+            const prayerTargets = prayerActive 
+                ? Array.from(document.querySelectorAll('.prayer-target')).map(e => e.value) 
+                : [];
+
+            const englishActive = document.getElementById('toggle-english').classList.contains('active');
+            const englishTypes = englishActive 
+                ? Array.from(document.querySelectorAll('.english-type')).map(e => e.value) 
+                : [];
+
+            const exerciseActive = document.getElementById('toggle-exercise').classList.contains('active');
+            const exerciseList = [];
+            if(exerciseActive) {
+                document.querySelectorAll('.exercise-row').forEach(row => {
+                    const name = row.querySelector('.ex-name').value;
+                    if(name === '런닝/조깅') {
+                        const place = row.querySelector('.ex-place').value;
+                        const dur = row.querySelector('.ex-duration').value;
+                        exerciseList.push({ name, place, duration: dur, type: 'running' });
+                    } else {
+                        const weight = row.querySelector('.ex-weight').value;
+                        const reps = row.querySelector('.ex-reps').value;
+                        exerciseList.push({ name, weight, reps, type: 'strength' });
+                    }
+                });
+            }
+
+            const record = {
+                date,
+                timestamp: Date.now(),
+                mood: { value: selectedMood, detail: moodDetail },
+                condition: { value: selectedCondition, detail: condDetail },
+                habits: {
+                    prayer: { done: prayerActive, targets: prayerTargets },
+                    english: { done: englishActive, types: englishTypes },
+                    exercise: { done: exerciseActive, list: exerciseList }
+                },
+                reflection
+            };
+
+            const tx = db.transaction(['entries'], 'readwrite');
+            tx.objectStore('entries').add(record).onsuccess = () => {
+                showToast("✅ 저장되었습니다!");
+                resetForm();
+                loadRecords();
+            };
+        }
+
+        function loadRecords() {
+            const tx = db.transaction(['entries'], 'readonly');
+            tx.objectStore('entries').getAll().onsuccess = (e) => {
+                const records = e.target.result.sort((a,b) => b.timestamp - a.timestamp);
+                renderHistory(records);
+            };
+        }
+
+        function deleteRecord(id) {
+            if(!confirm("삭제하시겠습니까?")) return;
+            const tx = db.transaction(['entries'], 'readwrite');
+            tx.objectStore('entries').delete(id).onsuccess = () => {
+                showToast("삭제됨");
+                loadRecords();
+            };
+        }
+
+        function resetForm() {
+            // Simple reload for clean state or manual reset
+            document.getElementById('moodDetail').value = '';
+            document.getElementById('conditionDetail').value = '';
+            document.getElementById('reflectionInput').value = '';
+            document.getElementById('prayerList').innerHTML = '';
+            document.getElementById('englishList').innerHTML = '';
+            document.getElementById('exerciseList').innerHTML = '';
+            document.querySelectorAll('.toggle-switch').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.sub-form').forEach(el => el.classList.remove('open'));
+            window.scrollTo({top:0, behavior:'smooth'});
+        }
+
+        function renderHistory(records) {
+            const container = document.getElementById('historyList');
+            if(records.length === 0) {
+                container.innerHTML = '<div style="text-align:center; color:#9ca3af; padding:20px;">기록이 없습니다.</div>';
+                return;
+            }
+
+            container.innerHTML = records.map(r => {
+                // Formatting
+                const moodObj = MOODS.find(m => m.id === r.mood?.value) || MOODS[2];
+                const condObj = CONDITIONS.find(c => c.id === r.condition?.value) || CONDITIONS[2];
+                
+                const prayerStr = r.habits.prayer.done ? (r.habits.prayer.targets.join(', ') || '함') : 'X';
+                const englishStr = r.habits.english.done ? (r.habits.english.types.join(', ') || '함') : 'X';
+                
+                let exerciseStr = 'X';
+                if(r.habits.exercise.done) {
+                    exerciseStr = r.habits.exercise.list.map(ex => {
+                        if(ex.type === 'running') return `${ex.name}(${ex.place}) ${ex.duration}`;
+                        return `${ex.name} ${ex.weight} ${ex.reps}`;
+                    }).join(' / ');
+                    if(exerciseStr === '') exerciseStr = '운동 함';
+                }
+
+                return `
+                    <div class="history-card">
+                        <button class="btn-delete" onclick="deleteRecord(${r.id})"><i class="fa-solid fa-trash"></i></button>
+                        <span class="h-date">${r.date}</span>
+                        
+                        <div class="h-row">
+                            <i class="fa-regular fa-face-smile"></i> ${moodObj.icon} ${moodObj.label} 
+                            ${r.mood.detail ? `<span style="font-size:0.8rem; color:#6b7280">(${r.mood.detail})</span>` : ''}
+                        </div>
+                        <div class="h-row">
+                            <i class="fa-solid fa-heart-pulse"></i> ${condObj.icon} ${condObj.label}
+                            ${r.condition.detail ? `<span style="font-size:0.8rem; color:#6b7280">(${r.condition.detail})</span>` : ''}
+                        </div>
+                        
+                        <div style="margin: 10px 0; border-top: 1px dashed #e5e7eb; padding-top: 8px;">
+                            <div class="h-row"><i class="fa-solid fa-hands-praying"></i> 기도: ${prayerStr}</div>
+                            <div class="h-row"><i class="fa-solid fa-dumbbell"></i> 운동: ${exerciseStr}</div>
+                            <div class="h-row"><i class="fa-solid fa-book"></i> 영어: ${englishStr}</div>
+                        </div>
+
+                        ${r.reflection ? `<div class="h-detail-text" style="margin-left:0; background:#f9fafb; padding:8px; border-radius:8px;">${r.reflection}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function exportData() {
+            const tx = db.transaction(['entries'], 'readonly');
+            tx.objectStore('entries').getAll().onsuccess = (e) => {
+                const data = JSON.stringify(e.target.result, null, 2);
+                navigator.clipboard.writeText(data).then(() => showToast("📋 AI 데이터 복사 완료!"));
+            };
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+    </script>
+</body>
+</html>
