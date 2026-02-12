@@ -1,10 +1,10 @@
-<!-- Version 1.2 (Local DB - iOS Copy Fix) -->
+<!-- Version 2.0 (Search & Backup Support) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Everyday Checkup (Local)</title>
+    <title>Everyday Checkup (Ultimate)</title>
     
     <!-- PWA Settings -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -30,6 +30,7 @@
             --border: #e5e7eb;
             --danger: #ef4444;
             --danger-bg: #fee2e2;
+            --success: #10b981;
         }
 
         * {
@@ -76,6 +77,11 @@
             margin: 0;
             display: flex;
             align-items: center;
+            gap: 8px;
+        }
+
+        .header-actions {
+            display: flex;
             gap: 8px;
         }
 
@@ -310,6 +316,31 @@
         }
         .btn-save:active { transform: scale(0.98); }
 
+        /* Search Section */
+        .search-container {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .btn-small {
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .btn-primary-outline {
+            background: #fff;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
         /* History */
         .history-section { margin-top: 30px; }
         .history-card {
@@ -332,8 +363,21 @@
             cursor: pointer; padding: 5px;
         }
         .btn-delete:hover { color: var(--danger); }
+        
+        .btn-show-more {
+            width: 100%;
+            padding: 12px;
+            text-align: center;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-sub);
+            margin-top: 10px;
+            cursor: pointer;
+            font-weight: 500;
+        }
 
-        /* Export Modal */
+        /* Modals */
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.5); z-index: 200;
@@ -344,6 +388,8 @@
             background: #fff; border-radius: 16px; width: 100%; max-width: 500px;
             padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: flex; flex-direction: column;
         }
+        .modal-title { margin: 0 0 15px 0; font-size: 1.1rem; color: var(--primary); display: flex; align-items: center; gap: 8px;}
+        .modal-textarea { height: 150px; font-size: 0.8rem; background: #f9fafb; margin-bottom: 15px; border-radius: 8px; padding: 10px; font-family: monospace; }
 
         /* Toast */
         .toast {
@@ -358,10 +404,15 @@
 <body>
     <div id="app">
         <header>
-            <h1><i class="fa-solid fa-calendar-check"></i> Everyday Checkup</h1>
-            <button class="btn-icon" id="exportBtn" title="AI 데이터 복사">
-                <i class="fa-solid fa-robot"></i>
-            </button>
+            <h1><i class="fa-solid fa-check-to-slot"></i> Everyday Checkup</h1>
+            <div class="header-actions">
+                <button class="btn-icon" id="importBtn" title="데이터 가져오기(복구)">
+                    <i class="fa-solid fa-file-import"></i>
+                </button>
+                <button class="btn-icon" id="exportBtn" title="데이터 내보내기(백업)">
+                    <i class="fa-solid fa-file-export"></i>
+                </button>
+            </div>
         </header>
 
         <main>
@@ -434,12 +485,24 @@
 
             <button class="btn-save" id="saveBtn">기록 저장하기</button>
 
-            <!-- History -->
+            <!-- Search & History -->
             <div class="history-section">
+                <div class="card" style="margin-bottom: 15px; padding: 15px;">
+                    <div class="section-title" style="margin-bottom: 10px;">
+                        <i class="fa-solid fa-magnifying-glass"></i> 기록 검색
+                    </div>
+                    <div class="search-container">
+                        <input type="date" id="searchDateInput" style="padding: 10px;">
+                        <button class="btn-small btn-primary-outline" id="searchBtn">검색</button>
+                        <button class="btn-small btn-secondary" id="searchResetBtn">초기화</button>
+                    </div>
+                </div>
+
                 <div class="section-title" style="padding: 0 5px;">
                     <i class="fa-solid fa-clock-rotate-left"></i> 지난 기록
                 </div>
                 <div id="historyList"></div>
+                <button id="showMoreBtn" class="btn-show-more" style="display:none;">더보기 (전체 기록 표시)</button>
             </div>
         </main>
     </div>
@@ -448,18 +511,32 @@
     <div class="modal-overlay" id="exportModal">
         <div class="modal">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <h2 style="margin:0; font-size:1.1rem; color: var(--primary);">🤖 AI 분석용 데이터</h2>
+                <h2 class="modal-title"><i class="fa-solid fa-download"></i> 데이터 백업</h2>
                 <button class="btn-icon" id="closeExportModal"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <textarea id="exportText" readonly style="height:200px; font-size:0.8rem; background:#f9fafb; margin-bottom:15px; border-radius:8px; padding:10px;"></textarea>
+            <p style="font-size:0.9rem; color:#6b7280; margin-top:0;">아래 텍스트를 모두 복사하여 메모장이나 클라우드에 따로 저장해두세요.</p>
+            <textarea id="exportText" class="modal-textarea" readonly></textarea>
             <button class="btn-save" id="realCopyBtn">📋 클립보드에 복사하기</button>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div class="modal-overlay" id="importModal">
+        <div class="modal">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h2 class="modal-title"><i class="fa-solid fa-upload"></i> 데이터 복구</h2>
+                <button class="btn-icon" id="closeImportModal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p style="font-size:0.9rem; color:#6b7280; margin-top:0;">백업해둔 데이터 텍스트를 아래에 붙여넣기 하세요. (기존 데이터에 추가됩니다)</p>
+            <textarea id="importText" class="modal-textarea" placeholder='[{"date":"2024-..."}]'></textarea>
+            <button class="btn-save" id="realImportBtn" style="background-color: var(--success);">📥 데이터 가져오기</button>
         </div>
     </div>
 
     <div class="toast" id="toast">메시지</div>
 
     <script>
-        // --- Data ---
+        // --- Configuration & Data ---
         const MOODS = [
             { id: 'joy', label: '기쁨', icon: '🥰' },
             { id: 'peace', label: '평온', icon: '😌' },
@@ -479,7 +556,6 @@
         const ENGLISH_TYPES = ["쉐도잉/스피킹", "리스닝/듣기", "단어/어휘", "독해/원서", "문법/작문", "화상영어", "미드/영화", "기타"];
         const EXERCISE_NAMES = ["스쿼트", "데드리프트", "벤치프레스", "오버헤드프레스", "풀업/턱걸이", "푸쉬업", "런닝/조깅", "사이클", "플랭크", "덤벨컬", "레그프레스", "래트풀다운", "기타"];
 
-        // Generators
         const WEIGHT_OPTIONS = ["맨몸", ...Array.from({length:10},(_,i)=>`${i+1}kg`), ...Array.from({length:10},(_,i)=>`${12+i*2}kg`), ...Array.from({length:14},(_,i)=>`${35+i*5}kg`)];
         const REP_OPTIONS = [...Array.from({length:15},(_,i)=>`${i+1}회`), "20회", "30회", "실패지점까지"];
         const DURATION_OPTIONS = ["10분", "20분", "30분", "40분", "50분", "60분", "90분", "120분"];
@@ -488,6 +564,9 @@
         let selectedMood = 'peace';
         let selectedCondition = 'normal';
         let db;
+        let allRecordsCache = [];
+        let isSearching = false;
+        let showAllHistory = false;
 
         // --- Init ---
         document.addEventListener('DOMContentLoaded', () => {
@@ -500,18 +579,35 @@
             setupHabitToggle('exercise', addExerciseRow);
             setupHabitToggle('english', addEnglishRow);
 
+            // Main Actions
             document.getElementById('saveBtn').addEventListener('click', saveRecord);
-            document.getElementById('exportBtn').addEventListener('click', prepareExport);
             
-            // Modal Listeners
-            document.getElementById('closeExportModal').addEventListener('click', () => {
-                 document.getElementById('exportModal').classList.remove('open');
+            // Search Actions
+            document.getElementById('searchBtn').addEventListener('click', performSearch);
+            document.getElementById('searchResetBtn').addEventListener('click', resetSearch);
+            document.getElementById('showMoreBtn').addEventListener('click', () => {
+                showAllHistory = true;
+                renderHistoryList();
             });
+
+            // Import/Export Actions
+            document.getElementById('exportBtn').addEventListener('click', openExportModal);
+            document.getElementById('closeExportModal').addEventListener('click', () => toggleModal('exportModal', false));
             document.getElementById('realCopyBtn').addEventListener('click', executeCopy);
+
+            document.getElementById('importBtn').addEventListener('click', () => toggleModal('importModal', true));
+            document.getElementById('closeImportModal').addEventListener('click', () => toggleModal('importModal', false));
+            document.getElementById('realImportBtn').addEventListener('click', executeImport);
         });
 
         function initDate() {
             document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+        }
+
+        function toggleModal(id, show) {
+            const el = document.getElementById(id);
+            if(show) el.classList.add('open');
+            else el.classList.remove('open');
         }
 
         // --- UI Rendering ---
@@ -540,8 +636,6 @@
             header.addEventListener('click', () => {
                 toggle.classList.toggle('active');
                 sub.classList.toggle('open');
-                
-                // Auto add first row if empty when opening
                 if (toggle.classList.contains('active') && list.children.length === 0) {
                     addFn();
                 }
@@ -549,10 +643,6 @@
         }
 
         // --- Dynamic Rows ---
-        function createSelect(options) {
-            return `<select>${options.map(o => `<option value="${o}">${o}</option>`).join('')}</select>`;
-        }
-
         function addPrayerRow() {
             const list = document.getElementById('prayerList');
             const row = document.createElement('div');
@@ -625,14 +715,12 @@
                     durBox.style.display = 'none';
                 }
             });
-
             list.appendChild(row);
         }
 
-
-        // --- IndexedDB ---
+        // --- IndexedDB Logic ---
         function initDB() {
-            const request = indexedDB.open('EverydayCheckupDB_V2', 1); // V2 for schema change (though schema-less object store)
+            const request = indexedDB.open('EverydayCheckupDB_V2', 1);
             request.onerror = (e) => console.error(e);
             request.onupgradeneeded = (e) => {
                 db = e.target.result;
@@ -650,21 +738,16 @@
             const date = document.getElementById('dateInput').value;
             if(!date) return showToast("날짜를 선택해주세요.");
 
-            // Gather Data
             const moodDetail = document.getElementById('moodDetail').value;
             const condDetail = document.getElementById('conditionDetail').value;
             const reflection = document.getElementById('reflectionInput').value;
 
-            // Habits
+            // Gather Habits
             const prayerActive = document.getElementById('toggle-prayer').classList.contains('active');
-            const prayerTargets = prayerActive 
-                ? Array.from(document.querySelectorAll('.prayer-target')).map(e => e.value) 
-                : [];
+            const prayerTargets = prayerActive ? Array.from(document.querySelectorAll('.prayer-target')).map(e => e.value) : [];
 
             const englishActive = document.getElementById('toggle-english').classList.contains('active');
-            const englishTypes = englishActive 
-                ? Array.from(document.querySelectorAll('.english-type')).map(e => e.value) 
-                : [];
+            const englishTypes = englishActive ? Array.from(document.querySelectorAll('.english-type')).map(e => e.value) : [];
 
             const exerciseActive = document.getElementById('toggle-exercise').classList.contains('active');
             const exerciseList = [];
@@ -698,7 +781,7 @@
 
             const tx = db.transaction(['entries'], 'readwrite');
             tx.objectStore('entries').add(record).onsuccess = () => {
-                showToast("✅ 저장되었습니다!");
+                showToast("✅ 저장 완료!");
                 resetForm();
                 loadRecords();
             };
@@ -707,55 +790,84 @@
         function loadRecords() {
             const tx = db.transaction(['entries'], 'readonly');
             tx.objectStore('entries').getAll().onsuccess = (e) => {
-                const records = e.target.result.sort((a,b) => b.timestamp - a.timestamp);
-                renderHistory(records);
+                // Sort Descending
+                allRecordsCache = e.target.result.sort((a,b) => b.timestamp - a.timestamp);
+                renderHistoryList();
             };
         }
 
         function deleteRecord(id) {
-            if(!confirm("삭제하시겠습니까?")) return;
+            if(!confirm("이 기록을 정말 삭제하시겠습니까?")) return;
             const tx = db.transaction(['entries'], 'readwrite');
             tx.objectStore('entries').delete(id).onsuccess = () => {
-                showToast("삭제됨");
+                showToast("🗑️ 삭제됨");
                 loadRecords();
             };
         }
 
-        function resetForm() {
-            // Simple reload for clean state or manual reset
-            document.getElementById('moodDetail').value = '';
-            document.getElementById('conditionDetail').value = '';
-            document.getElementById('reflectionInput').value = '';
-            document.getElementById('prayerList').innerHTML = '';
-            document.getElementById('englishList').innerHTML = '';
-            document.getElementById('exerciseList').innerHTML = '';
-            document.querySelectorAll('.toggle-switch').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.sub-form').forEach(el => el.classList.remove('open'));
-            window.scrollTo({top:0, behavior:'smooth'});
+        // --- Search & Filtering ---
+        function performSearch() {
+            const date = document.getElementById('searchDateInput').value;
+            if(!date) return showToast("검색할 날짜를 선택하세요.");
+            isSearching = true;
+            renderHistoryList();
         }
 
-        function renderHistory(records) {
+        function resetSearch() {
+            document.getElementById('searchDateInput').value = '';
+            isSearching = false;
+            showAllHistory = false; // Reset pagination too
+            renderHistoryList();
+        }
+
+        function renderHistoryList() {
             const container = document.getElementById('historyList');
-            if(records.length === 0) {
-                container.innerHTML = '<div style="text-align:center; color:#9ca3af; padding:20px;">기록이 없습니다.</div>';
+            const searchDate = document.getElementById('searchDateInput').value;
+            const btnMore = document.getElementById('showMoreBtn');
+
+            // 1. Filter
+            let displayList = allRecordsCache;
+            if(isSearching && searchDate) {
+                displayList = allRecordsCache.filter(r => r.date === searchDate);
+            }
+
+            // 2. Pagination Logic
+            const totalCount = displayList.length;
+            let visibleList = displayList;
+
+            if(!isSearching && !showAllHistory) {
+                // If not searching and not expanded, show only top 5
+                visibleList = displayList.slice(0, 5);
+                btnMore.style.display = (totalCount > 5) ? 'block' : 'none';
+                btnMore.innerText = `더보기 (${totalCount - 5}개 더 있음)`;
+            } else {
+                btnMore.style.display = 'none';
+            }
+
+            // 3. Render
+            if(visibleList.length === 0) {
+                container.innerHTML = '<div style="text-align:center; color:#9ca3af; padding:30px;">기록이 없습니다.</div>';
                 return;
             }
 
-            container.innerHTML = records.map(r => {
-                // Formatting
+            container.innerHTML = visibleList.map(r => {
+                // Determine icons
                 const moodObj = MOODS.find(m => m.id === r.mood?.value) || MOODS[2];
                 const condObj = CONDITIONS.find(c => c.id === r.condition?.value) || CONDITIONS[2];
                 
-                const prayerStr = r.habits.prayer.done ? (r.habits.prayer.targets.join(', ') || '함') : 'X';
-                const englishStr = r.habits.english.done ? (r.habits.english.types.join(', ') || '함') : 'X';
+                const prayerStr = r.habits.prayer.done ? (r.habits.prayer.targets.join(', ') || '완료') : 'X';
+                const englishStr = r.habits.english.done ? (r.habits.english.types.join(', ') || '완료') : 'X';
                 
                 let exerciseStr = 'X';
                 if(r.habits.exercise.done) {
-                    exerciseStr = r.habits.exercise.list.map(ex => {
-                        if(ex.type === 'running') return `${ex.name}(${ex.place}) ${ex.duration}`;
-                        return `${ex.name} ${ex.weight} ${ex.reps}`;
-                    }).join(' / ');
-                    if(exerciseStr === '') exerciseStr = '운동 함';
+                    if(r.habits.exercise.list.length > 0) {
+                        exerciseStr = r.habits.exercise.list.map(ex => {
+                            if(ex.type === 'running') return `${ex.name}(${ex.place}) ${ex.duration}`;
+                            return `${ex.name} ${ex.weight} ${ex.reps}`;
+                        }).join(' / ');
+                    } else {
+                        exerciseStr = '완료';
+                    }
                 }
 
                 return `
@@ -784,50 +896,16 @@
             }).join('');
         }
 
-        // --- Export Logic ---
-        function prepareExport() {
-            const tx = db.transaction(['entries'], 'readonly');
-            tx.objectStore('entries').getAll().onsuccess = (e) => {
-                const data = JSON.stringify(e.target.result, null, 2);
-                document.getElementById('exportText').value = data;
-                document.getElementById('exportModal').classList.add('open');
-            };
-        }
-
-        function executeCopy() {
-            const textArea = document.getElementById('exportText');
-            
-            // Select text
-            textArea.select();
-            textArea.setSelectionRange(0, 99999); // For Mobile devices
-
-            // Try Modern API first, then Fallback
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(textArea.value)
-                    .then(() => {
-                        showToast("📋 복사 완료!");
-                        document.getElementById('exportModal').classList.remove('open');
-                    })
-                    .catch((err) => {
-                        // If modern API fails (Safari restriction), try execCommand
-                        try {
-                            document.execCommand('copy');
-                            showToast("📋 복사 완료 (Fallback)");
-                            document.getElementById('exportModal').classList.remove('open');
-                        } catch (e) {
-                            showToast("복사 실패. 수동으로 복사해주세요.");
-                        }
-                    });
-            } else {
-                // Fallback for older browsers
-                try {
-                    document.execCommand('copy');
-                    showToast("📋 복사 완료");
-                    document.getElementById('exportModal').classList.remove('open');
-                } catch (e) {
-                    showToast("복사 실패. 수동으로 복사해주세요.");
-                }
-            }
+        function resetForm() {
+            document.getElementById('moodDetail').value = '';
+            document.getElementById('conditionDetail').value = '';
+            document.getElementById('reflectionInput').value = '';
+            document.getElementById('prayerList').innerHTML = '';
+            document.getElementById('englishList').innerHTML = '';
+            document.getElementById('exerciseList').innerHTML = '';
+            document.querySelectorAll('.toggle-switch').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.sub-form').forEach(el => el.classList.remove('open'));
+            window.scrollTo({top:0, behavior:'smooth'});
         }
 
         function showToast(msg) {
@@ -835,6 +913,77 @@
             toast.innerText = msg;
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        // --- Export / Import Functions ---
+        function openExportModal() {
+            if(allRecordsCache.length === 0) return showToast("백업할 데이터가 없습니다.");
+            const data = JSON.stringify(allRecordsCache, null, 2);
+            document.getElementById('exportText').value = data;
+            toggleModal('exportModal', true);
+        }
+
+        function executeCopy() {
+            const textArea = document.getElementById('exportText');
+            textArea.select();
+            textArea.setSelectionRange(0, 99999);
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(textArea.value)
+                    .then(() => {
+                        showToast("📋 복사 완료!");
+                        toggleModal('exportModal', false);
+                    })
+                    .catch(() => fallbackCopy(textArea));
+            } else {
+                fallbackCopy(textArea);
+            }
+        }
+
+        function fallbackCopy(textArea) {
+            try {
+                document.execCommand('copy');
+                showToast("📋 복사 완료");
+                toggleModal('exportModal', false);
+            } catch (e) {
+                showToast("복사 실패. 텍스트를 직접 복사해주세요.");
+            }
+        }
+
+        function executeImport() {
+            const jsonStr = document.getElementById('importText').value;
+            if(!jsonStr) return showToast("데이터를 붙여넣어 주세요.");
+
+            try {
+                const data = JSON.parse(jsonStr);
+                if(!Array.isArray(data)) throw new Error("데이터 형식이 올바르지 않습니다.");
+
+                if(!confirm(`총 ${data.length}개의 데이터를 복구(추가)하시겠습니까?`)) return;
+
+                const tx = db.transaction(['entries'], 'readwrite');
+                const store = tx.objectStore('entries');
+
+                let count = 0;
+                data.forEach(item => {
+                    // Remove ID to ensure new unique ID generation in local DB (Safe Merge)
+                    // If you want to force overwrite, keep ID, but that risks key errors.
+                    // This app prioritizes safe adding.
+                    delete item.id; 
+                    store.add(item);
+                    count++;
+                });
+
+                tx.oncomplete = () => {
+                    showToast(`✅ ${count}개 데이터 복구 완료!`);
+                    document.getElementById('importText').value = '';
+                    toggleModal('importModal', false);
+                    loadRecords();
+                };
+                tx.onerror = () => showToast("❌ 데이터 저장 중 오류 발생");
+
+            } catch (e) {
+                showToast("❌ 잘못된 JSON 형식입니다.");
+            }
         }
     </script>
 </body>
