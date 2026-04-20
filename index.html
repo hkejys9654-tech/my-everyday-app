@@ -9,7 +9,7 @@
     <!-- PWA Settings -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#4f46e5">
+    <meta name="theme-color" content="#ef4444">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2965/2965300.png">
     
     <!-- Fonts & Icons -->
@@ -20,9 +20,9 @@
 
     <style>
         :root {
-            --primary: #4f46e5;
-            --primary-light: #eef2ff;
-            --primary-dark: #4338ca;
+            --primary: #ef4444;
+            --primary-light: #fee2e2;
+            --primary-dark: #dc2626;
             --text-main: #1f2937;
             --text-sub: #6b7280;
             --bg: #f3f4f6;
@@ -314,7 +314,7 @@
             font-size: 1rem;
             font-weight: 700;
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
             transition: transform 0.1s;
         }
         .btn-save:active { transform: scale(0.98); }
@@ -826,13 +826,15 @@
         const ENGLISH_TYPES = ["쉐도잉/스피킹", "리스닝/듣기", "단어/어휘", "독해/원서", "문법/작문", "화상영어", "미드/영화", "기타"];
         const EXERCISE_NAMES = ["스쿼트", "데드리프트", "벤치프레스", "오버헤드프레스", "풀업/턱걸이", "푸쉬업", "런닝/조깅", "사이클", "플랭크", "덤벨컬", "레그프레스", "래트풀다운", "기타"];
 
+        const SET_OPTIONS = [...Array.from({length:10}, (_,i)=>`${i+1}세트`), "15세트", "20세트"];
+        const REST_OPTIONS = ["휴식 없음", "30초", "1분", "1분 30초", "2분", "2분 30초", "3분", "5분"];
         const WEIGHT_OPTIONS = ["맨몸", ...Array.from({length:10},(_,i)=>`${i+1}kg`), ...Array.from({length:10},(_,i)=>`${12+i*2}kg`), ...Array.from({length:14},(_,i)=>`${35+i*5}kg`)];
         const REP_OPTIONS = [...Array.from({length:15},(_,i)=>`${i+1}회`), "20회", "30회", "실패지점까지"];
         const DURATION_OPTIONS = ["10분", "20분", "30분", "40분", "50분", "60분", "90분", "120분"];
 
         // --- State ---
-        let selectedMood = 'peace';
-        let selectedCondition = 'normal';
+        let selectedMoods = new Set(['peace']);
+        let selectedConditions = new Set(['normal']);
         let db;
         let allRecordsCache = [];
         let isSearching = false;
@@ -845,8 +847,8 @@
         document.addEventListener('DOMContentLoaded', () => {
             initDB();
             initDate();
-            renderChips('moodContainer', MOODS, selectedMood, (id) => selectedMood = id);
-            renderChips('conditionContainer', CONDITIONS, selectedCondition, (id) => selectedCondition = id);
+            renderMultiSelectChips('moodContainer', MOODS, selectedMoods);
+            renderMultiSelectChips('conditionContainer', CONDITIONS, selectedConditions);
             renderMultiSelectChips('prayerContainer', PRAYER_TARGETS, selectedPrayerTargets);
             
             setupHabitToggle('prayer', () => {});
@@ -890,35 +892,20 @@
         }
 
         // --- UI Rendering ---
-        function renderChips(containerId, items, initialId, callback) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
-            items.forEach(item => {
-                const el = document.createElement('div');
-                el.className = `chip ${item.id === initialId ? 'selected' : ''}`;
-                el.innerHTML = `<span class="icon">${item.icon || ''}</span><span class="text">${item.label}</span>`;
-                el.onclick = () => {
-                    Array.from(container.children).forEach(c => c.classList.remove('selected'));
-                    el.classList.add('selected');
-                    callback(item.id);
-                };
-                container.appendChild(el);
-            });
-        }
-
         function renderMultiSelectChips(containerId, items, selectedSet) {
             const container = document.getElementById(containerId);
             container.innerHTML = '';
             items.forEach(item => {
                 const el = document.createElement('div');
-                el.className = `chip ${selectedSet.has(item.label) ? 'selected' : ''}`;
-                el.innerHTML = `<span class="text">${item.label}</span>`;
+                el.className = `chip ${selectedSet.has(item.id) || selectedSet.has(item.label) ? 'selected' : ''}`;
+                el.innerHTML = `${item.icon ? `<span class="icon">${item.icon}</span>` : ''}<span class="text">${item.label}</span>`;
                 el.onclick = () => {
-                    if (selectedSet.has(item.label)) {
-                        selectedSet.delete(item.label);
+                    const key = item.id || item.label;
+                    if (selectedSet.has(key)) {
+                        selectedSet.delete(key);
                         el.classList.remove('selected');
                     } else {
-                        selectedSet.add(item.label);
+                        selectedSet.add(key);
                         el.classList.add('selected');
                     }
                 };
@@ -972,6 +959,8 @@
             const nameOpts = EXERCISE_NAMES.map(n => `<option value="${n}">${n}</option>`).join('');
             const weightOpts = WEIGHT_OPTIONS.map(w => `<option value="${w}">${w}</option>`).join('');
             const repOpts = REP_OPTIONS.map(r => `<option value="${r}">${r}</option>`).join('');
+            const setOpts = SET_OPTIONS.map(s => `<option value="${s}" ${s === '3세트' ? 'selected' : ''}>${s}</option>`).join('');
+            const restOpts = REST_OPTIONS.map(r => `<option value="${r}" ${r === '1분' ? 'selected' : ''}>${r}</option>`).join('');
             const durationOpts = DURATION_OPTIONS.map(d => `<option value="${d}">${d}</option>`).join('');
 
             row.innerHTML = `
@@ -982,14 +971,25 @@
                 <div class="running-options">
                     <select class="ex-place" style="flex:1"><option value="실외">실외 🌳</option><option value="실내">실내 🏃</option></select>
                 </div>
-                <div class="exercise-details">
-                    <div style="flex:1" class="weight-box">
+                <div class="exercise-details" style="flex-wrap: wrap;">
+                    <div style="flex:1; min-width: 80px;" class="weight-box">
+                        <div style="font-size: 0.7rem; color: var(--text-sub); text-align: center; margin-bottom: 2px;">무게</div>
                         <select class="ex-weight" style="text-align:center">${weightOpts}</select>
                     </div>
-                    <div style="flex:1" class="rep-box">
+                    <div style="flex:1; min-width: 80px;" class="rep-box">
+                        <div style="font-size: 0.7rem; color: var(--text-sub); text-align: center; margin-bottom: 2px;">횟수</div>
                         <select class="ex-reps" style="text-align:center">${repOpts}</select>
                     </div>
+                    <div style="flex:1; min-width: 80px;" class="set-box">
+                        <div style="font-size: 0.7rem; color: var(--text-sub); text-align: center; margin-bottom: 2px;">세트</div>
+                        <select class="ex-sets" style="text-align:center">${setOpts}</select>
+                    </div>
+                    <div style="flex:1; min-width: 80px;" class="rest-box">
+                        <div style="font-size: 0.7rem; color: var(--text-sub); text-align: center; margin-bottom: 2px;">세트간 휴식</div>
+                        <select class="ex-rest" style="text-align:center">${restOpts}</select>
+                    </div>
                      <div style="flex:1; display:none;" class="duration-box">
+                        <div style="font-size: 0.7rem; color: var(--text-sub); text-align: center; margin-bottom: 2px;">시간</div>
                         <select class="ex-duration" style="text-align:center">${durationOpts}</select>
                     </div>
                 </div>
@@ -1006,11 +1006,15 @@
                     runOpts.classList.add('active');
                     weightBox.style.display = 'none';
                     repBox.style.display = 'none';
+                    setBox.style.display = 'none';
+                    restBox.style.display = 'none';
                     durBox.style.display = 'block';
                 } else {
                     runOpts.classList.remove('active');
                     weightBox.style.display = 'block';
                     repBox.style.display = 'block';
+                    setBox.style.display = 'block';
+                    restBox.style.display = 'block';
                     durBox.style.display = 'none';
                 }
             });
