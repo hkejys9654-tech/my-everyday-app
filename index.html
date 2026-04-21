@@ -999,6 +999,8 @@
             const runOpts = row.querySelector('.running-options');
             const weightBox = row.querySelector('.weight-box');
             const repBox = row.querySelector('.rep-box');
+            const setBox = row.querySelector('.set-box');
+            const restBox = row.querySelector('.rest-box');
             const durBox = row.querySelector('.duration-box');
 
             nameSel.addEventListener('change', (e) => {
@@ -1064,7 +1066,9 @@
                     } else {
                         const weight = row.querySelector('.ex-weight').value;
                         const reps = row.querySelector('.ex-reps').value;
-                        exerciseList.push({ name, weight, reps, type: 'strength' });
+                        const sets = row.querySelector('.ex-sets').value;
+                        const rest = row.querySelector('.ex-rest').value;
+                        exerciseList.push({ name, weight, reps, sets, rest, type: 'strength' });
                     }
                 });
             }
@@ -1072,8 +1076,8 @@
             const record = {
                 date,
                 timestamp: Date.now(),
-                mood: { value: selectedMood, detail: moodDetail },
-                condition: { value: selectedCondition, detail: condDetail },
+                mood: { values: Array.from(selectedMoods), detail: moodDetail },
+                condition: { values: Array.from(selectedConditions), detail: condDetail },
                 habits: {
                     prayer: { done: prayerActive, targets: prayerTargets },
                     english: { done: englishActive, types: englishTypes },
@@ -1152,12 +1156,18 @@
             // 3. Charts
             const moodCounts = {};
             MOODS.forEach(m => moodCounts[m.id] = 0);
-            allRecordsCache.forEach(r => { if(moodCounts[r.mood.value] !== undefined) moodCounts[r.mood.value]++; });
+            allRecordsCache.forEach(r => { 
+                const vals = r.mood.values || [r.mood.value]; // Handle migration
+                vals.forEach(vid => { if(moodCounts[vid] !== undefined) moodCounts[vid]++; });
+            });
             renderBarChart('moodChart', MOODS, moodCounts);
 
             const condCounts = {};
             CONDITIONS.forEach(c => condCounts[c.id] = 0);
-            allRecordsCache.forEach(r => { if(condCounts[r.condition.value] !== undefined) condCounts[r.condition.value]++; });
+            allRecordsCache.forEach(r => { 
+                const vals = r.condition.values || [r.condition.value]; // Handle migration
+                vals.forEach(vid => { if(condCounts[vid] !== undefined) condCounts[vid]++; });
+            });
             renderBarChart('conditionChart', CONDITIONS, condCounts);
         }
 
@@ -1194,11 +1204,19 @@
                 dayEl.innerText = i;
                 if (record) {
                     dayEl.onclick = () => {
-                        const mood = MOODS.find(m => m.id === record.mood.value);
-                        const cond = CONDITIONS.find(c => c.id === record.condition.value);
+                        const moodStrs = (record.mood.values || [record.mood.value]).map(vid => {
+                            const m = MOODS.find(mx => mx.id === vid);
+                            return m ? `${m.icon} ${m.label}` : '';
+                        }).filter(x => x).join(' ');
+
+                        const condStrs = (record.condition.values || [record.condition.value]).map(vid => {
+                            const c = CONDITIONS.find(cx => cx.id === vid);
+                            return c ? `${c.icon} ${c.label}` : '';
+                        }).filter(x => x).join(' ');
+
                         document.getElementById('statsDaySummary').innerHTML = `
                             <strong>${dateStr} 요약</strong><br>
-                            기분: ${mood.icon} ${mood.label} | 컨디션: ${cond.icon} ${cond.label}<br>
+                            기분: ${moodStrs} | 컨디션: ${condStrs}<br>
                             ${record.reflection ? `한마디: ${record.reflection.substring(0, 30)}${record.reflection.length > 30 ? '...' : ''}` : '기록된 한마디 없음'}
                         `;
                     };
@@ -1309,9 +1327,16 @@
             }
 
             container.innerHTML = visibleList.map(r => {
-                // Determine icons
-                const moodObj = MOODS.find(m => m.id === r.mood?.value) || MOODS[2];
-                const condObj = CONDITIONS.find(c => c.id === r.condition?.value) || CONDITIONS[2];
+                // Determine icons (Multi-select)
+                const moodIcons = (r.mood?.values || []).map(vid => {
+                    const found = MOODS.find(m => m.id === vid);
+                    return found ? `${found.icon} ${found.label}` : '';
+                }).filter(v => v).join(', ');
+
+                const condIcons = (r.condition?.values || []).map(vid => {
+                    const found = CONDITIONS.find(c => c.id === vid);
+                    return found ? `${found.icon} ${found.label}` : '';
+                }).filter(v => v).join(', ');
                 
                 const prayerStr = r.habits.prayer.done ? (r.habits.prayer.targets.join(', ') || '완료') : 'X';
                 const englishStr = r.habits.english.done ? (r.habits.english.types.join(', ') || '완료') : 'X';
@@ -1321,7 +1346,7 @@
                     if(r.habits.exercise.list.length > 0) {
                         exerciseStr = r.habits.exercise.list.map(ex => {
                             if(ex.type === 'running') return `${ex.name}(${ex.place}) ${ex.duration}`;
-                            return `${ex.name} ${ex.weight} ${ex.reps}`;
+                            return `${ex.name} ${ex.weight} ${ex.reps} ${ex.sets || ''} ${ex.rest ? `(휴식:${ex.rest})` : ''}`.trim();
                         }).join(' / ');
                     } else {
                         exerciseStr = '완료';
@@ -1334,11 +1359,11 @@
                         <span class="h-date">${r.date}</span>
                         
                         <div class="h-row">
-                            <i class="fa-regular fa-face-smile"></i> ${moodObj.icon} ${moodObj.label} 
+                            <i class="fa-regular fa-face-smile"></i> ${moodIcons || 'N/A'}
                             ${r.mood.detail ? `<span style="font-size:0.8rem; color:#6b7280">(${r.mood.detail})</span>` : ''}
                         </div>
                         <div class="h-row">
-                            <i class="fa-solid fa-heart-pulse"></i> ${condObj.icon} ${condObj.label}
+                            <i class="fa-solid fa-heart-pulse"></i> ${condIcons || 'N/A'}
                             ${r.condition.detail ? `<span style="font-size:0.8rem; color:#6b7280">(${r.condition.detail})</span>` : ''}
                         </div>
                         
@@ -1358,8 +1383,18 @@
             document.getElementById('moodDetail').value = '';
             document.getElementById('conditionDetail').value = '';
             document.getElementById('reflectionInput').value = '';
+            
+            selectedMoods.clear();
+            selectedMoods.add('peace');
+            renderMultiSelectChips('moodContainer', MOODS, selectedMoods);
+            
+            selectedConditions.clear();
+            selectedConditions.add('normal');
+            renderMultiSelectChips('conditionContainer', CONDITIONS, selectedConditions);
+
             selectedPrayerTargets.clear();
             renderMultiSelectChips('prayerContainer', PRAYER_TARGETS, selectedPrayerTargets);
+            
             document.getElementById('englishList').innerHTML = '';
             document.getElementById('exerciseList').innerHTML = '';
             document.querySelectorAll('.toggle-switch').forEach(el => el.classList.remove('active'));
