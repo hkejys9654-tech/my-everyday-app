@@ -577,6 +577,112 @@
             color: white;
         }
 
+        /* Trend Chart (Vertical Bar Chart) */
+        .trend-chart-container {
+            margin-top: 20px;
+            padding: 10px 5px 30px 5px;
+        }
+        .trend-axis-wrapper {
+            margin-left: 30px;
+            height: 160px;
+            border-left: 2px solid var(--border);
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            align-items: flex-end;
+            position: relative;
+        }
+        .trend-bar-item {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            position: relative;
+        }
+        .trend-bar-stack {
+            width: 65%;
+            display: flex;
+            flex-direction: column-reverse;
+            transition: height 0.6s ease-out;
+            min-height: 2px;
+            overflow: hidden;
+            border-radius: 4px 4px 0 0;
+        }
+        .trend-bar-segment {
+            width: 100%;
+            transition: height 0.6s ease-out;
+        }
+        .trend-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.75rem;
+            color: var(--text-sub);
+        }
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+        }
+        .trend-x-text {
+            position: absolute;
+            bottom: -22px;
+            font-size: 0.65rem;
+            color: var(--text-sub);
+            width: 100%;
+            text-align: center;
+        }
+        .trend-y-labels {
+            position: absolute;
+            left: -35px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            color: var(--text-sub);
+            width: 30px;
+            text-align: right;
+            padding-right: 5px;
+        }
+        .trend-val-tooltip {
+            position: absolute;
+            top: -22px;
+            background: var(--text-main);
+            color: white;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            display: none;
+            white-space: nowrap;
+        }
+        .trend-bar-item:hover .trend-val-tooltip { display: block; }
+
+        .year-selector {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .year-btn {
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .year-btn:hover { color: var(--primary); }
+        .current-year-label { font-size: 1.1rem; font-weight: 700; color: var(--text-main); }
+
         /* Modals */
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -619,6 +725,7 @@
         <nav class="nav-tabs">
             <div class="nav-tab active" id="tabRecord" onclick="switchView('record')"><i class="fa-solid fa-pen-to-square"></i> 기록</div>
             <div class="nav-tab" id="tabStats" onclick="switchView('stats')"><i class="fa-solid fa-chart-line"></i> 통계</div>
+            <div class="nav-tab" id="tabOverall" onclick="switchView('overall')"><i class="fa-solid fa-layer-group"></i> 전체</div>
         </nav>
 
         <main style="padding: 0; overflow: hidden;">
@@ -750,6 +857,37 @@
                     <div id="conditionChart" class="chart-container"></div>
                 </div>
             </div>
+
+            <!-- Overall View -->
+            <div id="overallView" class="view-container">
+                <div class="card">
+                    <div class="section-title"><i class="fa-solid fa-chart-line"></i> 월별 기분 트렌드</div>
+                    <div class="year-selector">
+                        <button class="year-btn" onclick="changeOverallYear(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+                        <span class="current-year-label" id="overallCurrentYear">2024년</span>
+                        <button class="year-btn" onclick="changeOverallYear(1)"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                    <div class="trend-chart-container">
+                        <div class="trend-axis-wrapper" id="monthlyTrendChart"></div>
+                        <div class="trend-legend" id="moodLegend"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="section-title"><i class="fa-solid fa-chart-pie"></i> 연도별 기록 요약</div>
+                    <div id="overallYearStats" class="dynamic-list"></div>
+                </div>
+                
+                <div class="card">
+                    <div class="section-title"><i class="fa-solid fa-chart-column"></i> 기분 누적 분포 (전체)</div>
+                    <div id="overallMoodChart" class="chart-container"></div>
+                </div>
+
+                <div class="card">
+                    <div class="section-title"><i class="fa-solid fa-chart-column"></i> 컨디션 누적 분포 (전체)</div>
+                    <div id="overallConditionChart" class="chart-container"></div>
+                </div>
+            </div>
         </main>
     </div>
 
@@ -841,7 +979,23 @@
         let showAllHistory = false;
         let currentView = 'record';
         let statsCalendarDate = new Date();
+        let selectedOverallYear = new Date().getFullYear();
         let selectedPrayerTargets = new Set();
+
+        const MOOD_COLORS = {
+            joy: '#FFD700',      // 기쁨
+            happy: '#FF69B4',    // 행복
+            grateful: '#98FB98', // 감사
+            peace: '#87CEEB',    // 평온
+            normal: '#D3D3D3',   // 보통
+            bored: '#A9A9A9',    // 지루함
+            anxious: '#FFA07A',  // 불안
+            sad: '#4682B4',      // 슬픔
+            lonely: '#6A5ACD',   // 외로움
+            angry: '#FF4500',    // 화남
+            stressed: '#8B0000', // 스트레스
+            tired: '#4B0082'     // 피곤
+        };
 
         // --- Init ---
         document.addEventListener('DOMContentLoaded', () => {
@@ -1113,10 +1267,14 @@
             if (view === 'record') {
                 document.getElementById('recordView').classList.add('active');
                 document.getElementById('tabRecord').classList.add('active');
-            } else {
+            } else if (view === 'stats') {
                 document.getElementById('statsView').classList.add('active');
                 document.getElementById('tabStats').classList.add('active');
                 renderStats();
+            } else if (view === 'overall') {
+                document.getElementById('overallView').classList.add('active');
+                document.getElementById('tabOverall').classList.add('active');
+                renderOverallStats();
             }
         }
 
@@ -1124,7 +1282,7 @@
         function renderStats() {
             if (allRecordsCache.length === 0) return;
 
-            // 1. Summary Stats
+            // 1. Summary Stats (Always use full cache for streak/total)
             document.getElementById('statTotalDays').innerText = allRecordsCache.length;
             
             // Streak Calculation
@@ -1133,16 +1291,12 @@
             const dates = [...new Set(allRecordsCache.map(r => r.date))].sort().reverse();
             
             if (dates.length > 0) {
-                let checkDate = new Date(dates[0]);
                 const lastRecordDate = dates[0];
-                
-                // Only count streak if last record was today or yesterday
                 const diff = (new Date(today) - new Date(lastRecordDate)) / (1000 * 60 * 60 * 24);
                 if (diff <= 1) {
                     streak = 1;
                     for (let i = 1; i < dates.length; i++) {
-                        const prevDate = new Date(dates[i]);
-                        const dayDiff = (new Date(dates[i-1]) - prevDate) / (1000 * 60 * 60 * 24);
+                        const dayDiff = (new Date(dates[i-1]) - new Date(dates[i])) / (1000 * 60 * 60 * 24);
                         if (dayDiff === 1) streak++;
                         else break;
                     }
@@ -1153,27 +1307,159 @@
             // 2. Calendar
             renderStatsCalendar();
 
-            // 3. Charts
+            // 3. Charts (Filter by selected month)
+            const targetYear = statsCalendarDate.getFullYear();
+            const targetMonth = statsCalendarDate.getMonth();
+            const monthlyData = allRecordsCache.filter(r => {
+                const d = new Date(r.date);
+                return d.getFullYear() === targetYear && d.getMonth() === targetMonth;
+            });
+
             const moodCounts = {};
             MOODS.forEach(m => moodCounts[m.id] = 0);
-            allRecordsCache.forEach(r => { 
-                const vals = r.mood.values || [r.mood.value]; // Handle migration
+            monthlyData.forEach(r => { 
+                const vals = r.mood.values || (r.mood.value ? [r.mood.value] : []);
                 vals.forEach(vid => { if(moodCounts[vid] !== undefined) moodCounts[vid]++; });
             });
             renderBarChart('moodChart', MOODS, moodCounts);
 
             const condCounts = {};
             CONDITIONS.forEach(c => condCounts[c.id] = 0);
-            allRecordsCache.forEach(r => { 
-                const vals = r.condition.values || [r.condition.value]; // Handle migration
+            monthlyData.forEach(r => { 
+                const vals = r.condition.values || (r.condition.value ? [r.condition.value] : []);
                 vals.forEach(vid => { if(condCounts[vid] !== undefined) condCounts[vid]++; });
             });
             renderBarChart('conditionChart', CONDITIONS, condCounts);
         }
 
+        function renderOverallStats() {
+            if (allRecordsCache.length === 0) return;
+
+            // 0. Year Label
+            document.getElementById('overallCurrentYear').innerText = `${selectedOverallYear}년`;
+
+            // 1. Monthly Trend Chart (Stacked Vertical Bars for Moods)
+            const trendContainer = document.getElementById('monthlyTrendChart');
+            trendContainer.innerHTML = '';
+            
+            // Y-axis labels (Max 31 days)
+            const yAxis = document.createElement('div');
+            yAxis.className = 'trend-y-labels';
+            yAxis.innerHTML = '<span>31</span><span>15</span><span>0</span>';
+            trendContainer.appendChild(yAxis);
+
+            const months = Array.from({length: 12}, (_, i) => i + 1);
+            months.forEach(m => {
+                const monthData = allRecordsCache.filter(r => {
+                    const d = new Date(r.date);
+                    return d.getFullYear() === selectedOverallYear && (d.getMonth() + 1) === m;
+                });
+                
+                const totalMonthEntries = monthData.length;
+                const totalPercent = (totalMonthEntries / 31) * 100;
+
+                // Aggregate mood counts for this month
+                const monthlyMoodCounts = {};
+                monthData.forEach(r => {
+                    const vals = r.mood.values || (r.mood.value ? [r.mood.value] : []);
+                    vals.forEach(vid => {
+                        if (MOODS.some(mx => mx.id === vid)) {
+                            monthlyMoodCounts[vid] = (monthlyMoodCounts[vid] || 0) + 1;
+                        }
+                    });
+                });
+
+                // Calculate segments
+                let totalMoodOccurrences = Object.values(monthlyMoodCounts).reduce((a, b) => a + b, 0);
+                
+                const item = document.createElement('div');
+                item.className = 'trend-bar-item';
+                
+                // Tooltip content
+                const tooltipDetails = Object.entries(monthlyMoodCounts)
+                    .map(([id, count]) => {
+                        const m = MOODS.find(mx => mx.id === id);
+                        return `${m.icon} ${m.label}: ${count}회`;
+                    }).join('<br>');
+
+                item.innerHTML = `
+                    <div class="trend-val-tooltip">${totalMonthEntries}일 기록<br>${tooltipDetails}</div>
+                    <div class="trend-bar-stack" style="height: 0%"></div>
+                    <div class="trend-x-text">${m}</div>
+                `;
+
+                const stack = item.querySelector('.trend-bar-stack');
+                if (totalMoodOccurrences > 0) {
+                    Object.entries(monthlyMoodCounts).forEach(([id, count]) => {
+                        const segment = document.createElement('div');
+                        segment.className = 'trend-bar-segment';
+                        const segmentPercent = (count / totalMoodOccurrences) * 100;
+                        segment.style.height = `${segmentPercent}%`;
+                        segment.style.backgroundColor = MOOD_COLORS[id] || '#ccc';
+                        stack.appendChild(segment);
+                    });
+                } else if (totalMonthEntries > 0) {
+                    // Fallback for entries with no mood (shouldn't happen with current UI)
+                    const segment = document.createElement('div');
+                    segment.className = 'trend-bar-segment';
+                    segment.style.height = '100%';
+                    segment.style.backgroundColor = '#ddd';
+                    stack.appendChild(segment);
+                }
+
+                trendContainer.appendChild(item);
+                setTimeout(() => stack.style.height = `${totalPercent}%`, 50);
+            });
+
+            // 1.1 Render Legend
+            const legendContainer = document.getElementById('moodLegend');
+            legendContainer.innerHTML = MOODS.map(m => `
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: ${MOOD_COLORS[m.id]}"></div>
+                    <span>${m.label}</span>
+                </div>
+            `).join('');
+
+            // 2. Year Summary List
+            const years = [...new Set(allRecordsCache.map(r => new Date(r.date).getFullYear()))].sort((a,b) => b-a);
+            const yearListContainer = document.getElementById('overallYearStats');
+            yearListContainer.innerHTML = years.map(y => {
+                const yearData = allRecordsCache.filter(r => new Date(r.date).getFullYear() === y);
+                return `
+                    <div style="background:#f9fafb; padding:12px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-weight:700">${y}년</span>
+                        <span style="font-size:0.9rem; color:var(--text-sub)">총 ${yearData.length}일 기록됨</span>
+                    </div>
+                `;
+            }).join('');
+
+            // 3. Total Mood Distribution
+            const moodCounts = {};
+            MOODS.forEach(m => moodCounts[m.id] = 0);
+            allRecordsCache.forEach(r => { 
+                const vals = r.mood.values || (r.mood.value ? [r.mood.value] : []);
+                vals.forEach(vid => { if(moodCounts[vid] !== undefined) moodCounts[vid]++; });
+            });
+            renderBarChart('overallMoodChart', MOODS, moodCounts);
+
+            // 4. Total Condition Distribution
+            const condCounts = {};
+            CONDITIONS.forEach(c => condCounts[c.id] = 0);
+            allRecordsCache.forEach(r => { 
+                const vals = r.condition.values || (r.condition.value ? [r.condition.value] : []);
+                vals.forEach(vid => { if(condCounts[vid] !== undefined) condCounts[vid]++; });
+            });
+            renderBarChart('overallConditionChart', CONDITIONS, condCounts);
+        }
+
+        function changeOverallYear(delta) {
+            selectedOverallYear += delta;
+            renderOverallStats();
+        }
+
         function changeStatsMonth(delta) {
             statsCalendarDate.setMonth(statsCalendarDate.getMonth() + delta);
-            renderStatsCalendar();
+            renderStats();
         }
 
         function renderStatsCalendar() {
@@ -1204,12 +1490,14 @@
                 dayEl.innerText = i;
                 if (record) {
                     dayEl.onclick = () => {
-                        const moodStrs = (record.mood.values || [record.mood.value]).map(vid => {
+                        const valsM = record.mood.values || (record.mood.value ? [record.mood.value] : []);
+                        const moodStrs = valsM.map(vid => {
                             const m = MOODS.find(mx => mx.id === vid);
                             return m ? `${m.icon} ${m.label}` : '';
                         }).filter(x => x).join(' ');
 
-                        const condStrs = (record.condition.values || [record.condition.value]).map(vid => {
+                        const valsC = record.condition.values || (record.condition.value ? [record.condition.value] : []);
+                        const condStrs = valsC.map(vid => {
                             const c = CONDITIONS.find(cx => cx.id === vid);
                             return c ? `${c.icon} ${c.label}` : '';
                         }).filter(x => x).join(' ');
@@ -1328,12 +1616,14 @@
 
             container.innerHTML = visibleList.map(r => {
                 // Determine icons (Multi-select)
-                const moodIcons = (r.mood?.values || []).map(vid => {
+                const moodVals = r.mood?.values || (r.mood?.value ? [r.mood.value] : []);
+                const moodIcons = moodVals.map(vid => {
                     const found = MOODS.find(m => m.id === vid);
                     return found ? `${found.icon} ${found.label}` : '';
                 }).filter(v => v).join(', ');
 
-                const condIcons = (r.condition?.values || []).map(vid => {
+                const condVals = r.condition?.values || (r.condition?.value ? [r.condition.value] : []);
+                const condIcons = condVals.map(vid => {
                     const found = CONDITIONS.find(c => c.id === vid);
                     return found ? `${found.icon} ${found.label}` : '';
                 }).filter(v => v).join(', ');
