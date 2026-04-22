@@ -683,6 +683,72 @@
         .year-btn:hover { color: var(--primary); }
         .current-year-label { font-size: 1.1rem; font-weight: 700; color: var(--text-main); }
 
+        /* Exercise Block & Rounds */
+        .exercise-block {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            position: relative;
+        }
+        .block-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            border-bottom: 2px solid #fee2e2;
+            padding-bottom: 8px;
+        }
+        .block-title {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .block-exercise-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        .btn-add-sub {
+            width: 100%;
+            padding: 8px;
+            border: 1px dashed var(--primary);
+            color: var(--primary);
+            background: #fff5f5;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-add-sub:hover { background: #fee2e2; }
+        .block-summary-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #f1f5f9;
+        }
+        .block-meta-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .block-meta-label {
+            font-size: 0.7rem;
+            color: var(--text-sub);
+            font-weight: 600;
+        }
+
         /* Modals */
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -769,12 +835,12 @@
                     <!-- Exercise -->
                     <div class="habit-block">
                         <div class="habit-header" id="header-exercise">
-                            <div class="habit-label"><span class="habit-icon">💪</span> 운동</div>
+                            <div class="habit-label"><span class="habit-icon">💪</span> 운동 기록</div>
                             <div class="toggle-switch" id="toggle-exercise"></div>
                         </div>
                         <div class="sub-form" id="sub-exercise">
                             <div id="exerciseList" class="dynamic-list"></div>
-                            <button class="btn-add" onclick="addExerciseRow()">+ 운동 추가</button>
+                            <button class="btn-add" onclick="addExerciseBlock()">+ 라운드(세트 그룹) 추가</button>
                         </div>
                     </div>
 
@@ -786,7 +852,7 @@
                         </div>
                         <div class="sub-form" id="sub-english">
                             <div id="englishList" class="dynamic-list"></div>
-                            <button class="btn-add" onclick="addEnglishRow()">+ 공부 형태 추가</button>
+                            <button class="btn-add" onclick="addEnglishRow()">+ 공부 항목 추가</button>
                         </div>
                     </div>
                 </div>
@@ -962,11 +1028,14 @@
             { id: 'etc', label: '기타' }
         ];
         const ENGLISH_TYPES = ["쉐도잉/스피킹", "리스닝/듣기", "단어/어휘", "독해/원서", "문법/작문", "화상영어", "미드/영화", "기타"];
-        const EXERCISE_NAMES = ["스쿼트", "데드리프트", "벤치프레스", "오버헤드프레스", "풀업/턱걸이", "푸쉬업", "런닝/조깅", "사이클", "플랭크", "덤벨컬", "레그프레스", "래트풀다운", "기타"];
+        const EXERCISE_NAMES = ["스쿼트", "데드리프트", "벤치프레스", "오버헤드프레스", "풀업/턱걸이", "푸쉬업", "런닝/조깅", "사이클", "플랭크", "덤벨컬", "바벨컬", "레그프레스", "래트풀다운", "기타"];
 
         const SET_OPTIONS = [...Array.from({length:10}, (_,i)=>`${i+1}세트`), "15세트", "20세트"];
         const REST_OPTIONS = ["휴식 없음", "30초", "1분", "1분 30초", "2분", "2분 30초", "3분", "5분"];
-        const WEIGHT_OPTIONS = ["맨몸", ...Array.from({length:10},(_,i)=>`${i+1}kg`), ...Array.from({length:10},(_,i)=>`${12+i*2}kg`), ...Array.from({length:14},(_,i)=>`${35+i*5}kg`)];
+        const WEIGHT_OPTIONS = ["맨몸", ...Array.from({length: 300}, (_, i) => {
+            const val = 1 + (i * 0.5);
+            return val % 1 === 0 ? `${val}kg` : `${val}kg`; 
+        })];
         const REP_OPTIONS = [...Array.from({length:15},(_,i)=>`${i+1}회`), "20회", "30회", "실패지점까지"];
         const DURATION_OPTIONS = ["10분", "20분", "30분", "40분", "50분", "60분", "90분", "120분"];
 
@@ -1006,7 +1075,7 @@
             renderMultiSelectChips('prayerContainer', PRAYER_TARGETS, selectedPrayerTargets);
             
             setupHabitToggle('prayer', () => {});
-            setupHabitToggle('exercise', addExerciseRow);
+            setupHabitToggle('exercise', addExerciseBlock);
             setupHabitToggle('english', addEnglishRow);
 
             // Main Actions
@@ -1097,84 +1166,117 @@
         function addEnglishRow() {
             const list = document.getElementById('englishList');
             const row = document.createElement('div');
-            row.className = 'dynamic-row';
+            row.className = 'exercise-block';
+            row.style.padding = '12px';
             row.innerHTML = `
-                <select class="english-type" style="flex:1">${ENGLISH_TYPES.map(t => `<option value="${t}">${t}</option>`).join('')}</select>
-                <button class="btn-remove" onclick="this.parentNode.remove()"><i class="fa-solid fa-xmark"></i></button>
+                <div style="display:flex; gap:8px; margin-bottom:12px; align-items:center; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">
+                    <span style="font-weight:700; font-size:0.8rem; color:var(--primary);"><i class="fa-solid fa-book-open"></i> 학습 항목</span>
+                    <select class="english-type" style="flex:1; border:none; background:transparent; font-weight:600;">${ENGLISH_TYPES.map(t => `<option value="${t}">${t}</option>`).join('')}</select>
+                    <button class="btn-icon" onclick="this.closest('.exercise-block').remove()"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div style="display:flex; gap:12px;">
+                    <div style="flex:1;">
+                        <div class="block-meta-label">학습 시간</div>
+                        <select class="english-duration" style="background:#f8fafc;">${DURATION_OPTIONS.map(d => `<option value="${d}">${d}</option>`).join('')}</select>
+                    </div>
+                    <div style="flex:1;">
+                        <div class="block-meta-label">암기 문장 수</div>
+                        <select class="english-count" style="background:#f8fafc;">
+                            ${[0, 5, 10, 15, 20, 30, 50, 100].map(c => `<option value="${c}문장">${c}문장</option>`).join('')}
+                            <option value="완벽숙지">완벽숙지</option>
+                        </select>
+                    </div>
+                </div>
             `;
             list.appendChild(row);
         }
 
-        function addExerciseRow() {
+        function addExerciseBlock() {
             const list = document.getElementById('exerciseList');
-            const row = document.createElement('div');
-            row.className = 'exercise-row';
+            const blockCount = list.querySelectorAll('.exercise-block').length + 1;
+            const block = document.createElement('div');
+            block.className = 'exercise-block';
+            block.innerHTML = `
+                <div class="block-header">
+                    <span class="block-title"><i class="fa-solid fa-layer-group"></i> ${blockCount}라운드 / 세트 군</span>
+                    <button class="btn-icon" onclick="this.closest('.exercise-block').remove()"><i class="fa-solid fa-trash-can"></i></button>
+                </div>
+                <div class="exercises-container"></div>
+                <button class="btn-add-sub" onclick="addExerciseFieldToBlock(this)">+ 운동 추가 (슈퍼세트 조합)</button>
+                <div class="block-summary-meta">
+                    <div class="block-meta-field">
+                        <span class="block-meta-label">총 세트 수</span>
+                        <select class="block-sets">${SET_OPTIONS.map(s => `<option value="${s}" ${s === '3세트' ? 'selected' : ''}>${s}</option>`).join('')}</select>
+                    </div>
+                    <div class="block-meta-field">
+                        <span class="block-meta-label">세트간 휴식</span>
+                        <select class="block-set-rest">${REST_OPTIONS.map(r => `<option value="${r}" ${r === '1분' ? 'selected' : ''}>${r}</option>`).join('')}</select>
+                    </div>
+                    <div class="block-meta-field" style="grid-column: 1 / -1;">
+                        <span class="block-meta-label">라운드 종료 후 휴식 (다음 운동 전)</span>
+                        <select class="block-round-rest">
+                            <option value="없음">없음</option>
+                            <option value="1분">1분</option>
+                            <option value="2분" selected>2분</option>
+                            <option value="3분">3분</option>
+                            <option value="5분">5분</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            list.appendChild(block);
+            addExerciseFieldToBlock(block.querySelector('.btn-add-sub'));
+        }
+
+        function addExerciseFieldToBlock(btn) {
+            const container = btn.previousElementSibling;
+            const item = document.createElement('div');
+            item.className = 'block-exercise-item';
             
             const nameOpts = EXERCISE_NAMES.map(n => `<option value="${n}">${n}</option>`).join('');
             const weightOpts = WEIGHT_OPTIONS.map(w => `<option value="${w}">${w}</option>`).join('');
             const repOpts = REP_OPTIONS.map(r => `<option value="${r}">${r}</option>`).join('');
-            const setOpts = SET_OPTIONS.map(s => `<option value="${s}" ${s === '3세트' ? 'selected' : ''}>${s}</option>`).join('');
-            const restOpts = REST_OPTIONS.map(r => `<option value="${r}" ${r === '1분' ? 'selected' : ''}>${r}</option>`).join('');
             const durationOpts = DURATION_OPTIONS.map(d => `<option value="${d}">${d}</option>`).join('');
 
-            row.innerHTML = `
-                <div class="exercise-header">
-                    <select class="ex-name" style="flex:1">${nameOpts}</select>
-                    <button class="btn-remove" onclick="this.closest('.exercise-row').remove()"><i class="fa-solid fa-xmark"></i></button>
+            item.innerHTML = `
+                <div style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
+                    <select class="sub-ex-name" style="flex:1; font-weight:700; border:none; background:transparent;">${nameOpts}</select>
+                    <button class="btn-icon" onclick="removeExerciseField(this)"><i class="fa-solid fa-circle-minus"></i></button>
                 </div>
-                <div class="running-options">
-                    <select class="ex-place" style="flex:1"><option value="실외">실외 🌳</option><option value="실내">실내 🏃</option></select>
-                </div>
-                <div class="exercise-details" style="flex-wrap: wrap;">
-                    <div style="flex:1; min-width: 80px;" class="weight-box">
-                        <div style="font-size: 0.7rem; color: var(--text-sub); text-align: center; margin-bottom: 2px;">무게</div>
-                        <select class="ex-weight" style="text-align:center">${weightOpts}</select>
+                <div class="sub-ex-options" style="display:flex; gap:8px;">
+                    <div style="flex:1;" class="sub-weight-box">
+                        <div class="block-meta-label">무게</div>
+                        <select class="sub-ex-weight">${weightOpts}</select>
                     </div>
-                    <div style="flex:1; min-width: 80px;" class="rep-box">
-                        <div style="font-size: 0.7rem; color: var(--text-sub); text-align: center; margin-bottom: 2px;">횟수</div>
-                        <select class="ex-reps" style="text-align:center">${repOpts}</select>
+                    <div style="flex:1;" class="sub-rep-box">
+                        <div class="block-meta-label">횟수</div>
+                        <select class="sub-ex-reps">${repOpts}</select>
                     </div>
-                    <div style="flex:1; min-width: 80px;" class="set-box">
-                        <div style="font-size: 0.7rem; color: var(--text-sub); text-align: center; margin-bottom: 2px;">세트</div>
-                        <select class="ex-sets" style="text-align:center">${setOpts}</select>
-                    </div>
-                    <div style="flex:1; min-width: 80px;" class="rest-box">
-                        <div style="font-size: 0.7rem; color: var(--text-sub); text-align: center; margin-bottom: 2px;">세트간 휴식</div>
-                        <select class="ex-rest" style="text-align:center">${restOpts}</select>
-                    </div>
-                     <div style="flex:1; display:none;" class="duration-box">
-                        <div style="font-size: 0.7rem; color: var(--text-sub); text-align: center; margin-bottom: 2px;">시간</div>
-                        <select class="ex-duration" style="text-align:center">${durationOpts}</select>
+                    <div style="flex:1; display:none;" class="sub-dur-box">
+                        <div class="block-meta-label">시간</div>
+                        <select class="sub-ex-duration">${durationOpts}</select>
                     </div>
                 </div>
             `;
-
-            const nameSel = row.querySelector('.ex-name');
-            const runOpts = row.querySelector('.running-options');
-            const weightBox = row.querySelector('.weight-box');
-            const repBox = row.querySelector('.rep-box');
-            const setBox = row.querySelector('.set-box');
-            const restBox = row.querySelector('.rest-box');
-            const durBox = row.querySelector('.duration-box');
-
+            
+            const nameSel = item.querySelector('.sub-ex-name');
             nameSel.addEventListener('change', (e) => {
-                if(e.target.value === '런닝/조깅') {
-                    runOpts.classList.add('active');
-                    weightBox.style.display = 'none';
-                    repBox.style.display = 'none';
-                    setBox.style.display = 'none';
-                    restBox.style.display = 'none';
-                    durBox.style.display = 'block';
-                } else {
-                    runOpts.classList.remove('active');
-                    weightBox.style.display = 'block';
-                    repBox.style.display = 'block';
-                    setBox.style.display = 'block';
-                    restBox.style.display = 'block';
-                    durBox.style.display = 'none';
-                }
+                const isRunning = e.target.value === '런닝/조깅';
+                item.querySelector('.sub-weight-box').style.display = isRunning ? 'none' : 'block';
+                item.querySelector('.sub-rep-box').style.display = isRunning ? 'none' : 'block';
+                item.querySelector('.sub-dur-box').style.display = isRunning ? 'block' : 'none';
             });
-            list.appendChild(row);
+
+            container.appendChild(item);
+        }
+
+        function removeExerciseField(btn) {
+            const container = btn.closest('.exercises-container');
+            if (container.children.length > 1) {
+                btn.closest('.block-exercise-item').remove();
+            } else {
+                showToast("최소 하나의 운동은 있어야 합니다.");
+            }
         }
 
         // --- IndexedDB Logic ---
@@ -1206,24 +1308,35 @@
             const prayerTargets = prayerActive ? Array.from(selectedPrayerTargets) : [];
 
             const englishActive = document.getElementById('toggle-english').classList.contains('active');
-            const englishTypes = englishActive ? Array.from(document.querySelectorAll('.english-type')).map(e => e.value) : [];
+            const englishList = [];
+            if(englishActive) {
+                document.querySelectorAll('#englishList > .exercise-block').forEach(row => {
+                    const type = row.querySelector('.english-type').value;
+                    const duration = row.querySelector('.english-duration').value;
+                    const count = row.querySelector('.english-count').value;
+                    englishList.push({ type, duration, count });
+                });
+            }
 
             const exerciseActive = document.getElementById('toggle-exercise').classList.contains('active');
             const exerciseList = [];
             if(exerciseActive) {
-                document.querySelectorAll('.exercise-row').forEach(row => {
-                    const name = row.querySelector('.ex-name').value;
-                    if(name === '런닝/조깅') {
-                        const place = row.querySelector('.ex-place').value;
-                        const dur = row.querySelector('.ex-duration').value;
-                        exerciseList.push({ name, place, duration: dur, type: 'running' });
-                    } else {
-                        const weight = row.querySelector('.ex-weight').value;
-                        const reps = row.querySelector('.ex-reps').value;
-                        const sets = row.querySelector('.ex-sets').value;
-                        const rest = row.querySelector('.ex-rest').value;
-                        exerciseList.push({ name, weight, reps, sets, rest, type: 'strength' });
-                    }
+                document.querySelectorAll('#exerciseList > .exercise-block').forEach(block => {
+                    const blockData = {
+                        exercises: [],
+                        sets: block.querySelector('.block-sets').value,
+                        setRest: block.querySelector('.block-set-rest').value,
+                        roundRest: block.querySelector('.block-round-rest').value
+                    };
+                    
+                    block.querySelectorAll('.block-exercise-item').forEach(item => {
+                        const name = item.querySelector('.sub-ex-name').value;
+                        const weight = item.querySelector('.sub-ex-weight').value;
+                        const reps = item.querySelector('.sub-ex-reps').value;
+                        const duration = item.querySelector('.sub-ex-duration').value;
+                        blockData.exercises.push({ name, weight, reps, duration });
+                    });
+                    exerciseList.push(blockData);
                 });
             }
 
@@ -1234,7 +1347,7 @@
                 condition: { values: Array.from(selectedConditions), detail: condDetail },
                 habits: {
                     prayer: { done: prayerActive, targets: prayerTargets },
-                    english: { done: englishActive, types: englishTypes },
+                    english: { done: englishActive, items: englishList },
                     exercise: { done: exerciseActive, list: exerciseList }
                 },
                 reflection
@@ -1575,14 +1688,19 @@
                     let match = true;
                     
                     if(keyword) {
+                        const englishSearchText = (r.habits.english.items || r.habits.english.types || []).map(ei => {
+                            if(typeof ei === 'string') return ei;
+                            return `${ei.type} ${ei.duration} ${ei.count}`;
+                        }).join(' ');
+
                         const searchableText = [
                             r.date,
                             r.mood.detail || '',
                             r.condition.detail || '',
                             r.reflection || '',
                             r.habits.prayer.targets.join(' '),
-                            r.habits.english.types.join(' '),
-                            r.habits.exercise.list.map(ex => ex.name).join(' ')
+                            englishSearchText,
+                            r.habits.exercise.list.map(ex => ex.name || ex.routineId).join(' ')
                         ].join(' ').toLowerCase();
                         if(!searchableText.includes(keyword)) match = false;
                     }
@@ -1629,14 +1747,31 @@
                 }).filter(v => v).join(', ');
                 
                 const prayerStr = r.habits.prayer.done ? (r.habits.prayer.targets.join(', ') || '완료') : 'X';
-                const englishStr = r.habits.english.done ? (r.habits.english.types.join(', ') || '완료') : 'X';
+                
+                let englishStr = 'X';
+                if(r.habits.english.done) {
+                    const items = r.habits.english.items || [];
+                    if(items.length > 0) {
+                        englishStr = items.map(ei => `${ei.type}(${ei.duration}/${ei.count})`).join(' / ');
+                    } else if (r.habits.english.types) {
+                        // Migration for old format
+                        englishStr = r.habits.english.types.join(', ') || '완료';
+                    } else {
+                        englishStr = '완료';
+                    }
+                }
                 
                 let exerciseStr = 'X';
                 if(r.habits.exercise.done) {
-                    if(r.habits.exercise.list.length > 0) {
-                        exerciseStr = r.habits.exercise.list.map(ex => {
-                            if(ex.type === 'running') return `${ex.name}(${ex.place}) ${ex.duration}`;
-                            return `${ex.name} ${ex.weight} ${ex.reps} ${ex.sets || ''} ${ex.rest ? `(휴식:${ex.rest})` : ''}`.trim();
+                    const blocks = r.habits.exercise.list || [];
+                    if(blocks.length > 0) {
+                        exerciseStr = blocks.map((b, idx) => {
+                            if (!b.exercises) return '기록 없음'; // Safety
+                            const exList = b.exercises.map(e => {
+                                if(e.name === '런닝/조깅') return `${e.name}(${e.duration})`;
+                                return `${e.name}(${e.weight}/${e.reps})`;
+                            }).join(' + ');
+                            return `R${idx+1}: [${exList}] ${b.sets}(휴식:${b.setRest})`;
                         }).join(' / ');
                     } else {
                         exerciseStr = '완료';
@@ -1684,11 +1819,17 @@
 
             selectedPrayerTargets.clear();
             renderMultiSelectChips('prayerContainer', PRAYER_TARGETS, selectedPrayerTargets);
-            
-            document.getElementById('englishList').innerHTML = '';
-            document.getElementById('exerciseList').innerHTML = '';
-            document.querySelectorAll('.toggle-switch').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.sub-form').forEach(el => el.classList.remove('open'));
+
+            // Reset Habit Toggles
+            ['prayer', 'english', 'exercise'].forEach(key => {
+                const toggle = document.getElementById(`toggle-${key}`);
+                const sub = document.getElementById(`sub-${key}`);
+                if(toggle) toggle.classList.remove('active');
+                if(sub) sub.classList.remove('open');
+                const list = document.getElementById(`${key}List`);
+                if(list) list.innerHTML = '';
+            });
+
             window.scrollTo({top:0, behavior:'smooth'});
         }
 
