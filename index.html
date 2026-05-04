@@ -1,4 +1,4 @@
-<!-- Version 2.2 (Waffle Chart Update) -->
+<!-- Version 2.3 (Waffle Chart 3x4 Grid Update) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -575,47 +575,138 @@
             color: white;
         }
 
-        /* Waffle Trend Chart (NEW) */
-        .trend-chart-container {
-            margin-top: 20px;
-            padding: 10px 5px 30px 5px;
-        }
-        .trend-axis-wrapper {
-            margin-left: 35px;
-            height: 180px; 
-            border-left: 2px solid var(--border);
-            border-bottom: 2px solid var(--border);
-            display: flex;
-            align-items: flex-end;
-            position: relative;
-        }
-        .trend-bar-item {
-            flex: 1;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            align-items: center;
-            position: relative;
-            padding-bottom: 5px;
-        }
-        
-        .waffle-grid {
+        /* === Waffle Trend Chart (NEW: 3x4 Grid Layout) === */
+        .waffle-grid-wrapper {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            grid-template-rows: repeat(8, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+        .month-card {
+            background: #fafbfc;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .month-card:active {
+            transform: scale(0.97);
+        }
+        .month-card.empty {
+            opacity: 0.4;
+        }
+        .month-card.selected {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            box-shadow: 0 2px 6px rgba(239, 68, 68, 0.15);
+        }
+
+        .month-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            margin-bottom: 6px;
+            width: 100%;
+        }
+        .month-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+        .month-top-emoji {
+            font-size: 0.85rem;
+        }
+
+        .month-waffle {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(7, 1fr);
             gap: 2px;
             width: 100%;
-            max-width: 26px; /* Waffle size tweak */
-            margin-bottom: 2px;
+            aspect-ratio: 5/7;
+            margin-bottom: 4px;
         }
-        .waffle-cell {
+        .month-waffle .waffle-cell {
             width: 100%;
-            aspect-ratio: 1;
+            height: 100%;
             border-radius: 2px;
+            min-width: 0;
+            min-height: 0;
         }
-        .waffle-cell.empty {
-            background-color: #f3f4f6;
+        .month-waffle .waffle-cell.empty {
+            background-color: #eef0f3;
+        }
+
+        .month-card-footer {
+            font-size: 0.65rem;
+            color: var(--text-sub);
+            font-weight: 500;
+        }
+
+        /* Detail Panel (Tap to Expand) */
+        .month-detail-panel {
+            margin-top: 10px;
+            background: #fff;
+            border: 1px solid var(--primary);
+            border-radius: 10px;
+            padding: 14px;
+            animation: fadeIn 0.3s;
+        }
+        .month-detail-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .month-detail-title .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .month-detail-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .month-detail-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+        .month-detail-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+        .month-detail-label {
+            flex: 1;
+            color: var(--text-main);
+        }
+        .month-detail-count {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        .month-detail-empty {
+            text-align: center;
+            color: var(--text-sub);
+            font-size: 0.85rem;
+            padding: 10px 0;
         }
 
         .trend-legend {
@@ -637,40 +728,6 @@
             height: 10px;
             border-radius: 2px;
         }
-        .trend-x-text {
-            position: absolute;
-            bottom: -25px;
-            font-size: 0.65rem;
-            color: var(--text-sub);
-            width: 100%;
-            text-align: center;
-        }
-        .trend-y-labels {
-            position: absolute;
-            left: -38px;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            font-size: 0.65rem;
-            color: var(--text-sub);
-            width: 30px;
-            text-align: right;
-            padding-right: 5px;
-        }
-        .trend-val-tooltip {
-            position: absolute;
-            top: -30px;
-            background: var(--text-main);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.65rem;
-            display: none;
-            white-space: nowrap;
-            z-index: 10;
-        }
-        .trend-bar-item:hover .trend-val-tooltip { display: block; }
 
         .year-selector {
             display: flex;
@@ -925,16 +982,15 @@
             <!-- Overall View -->
             <div id="overallView" class="view-container">
                 <div class="card">
-                    <div class="section-title"><i class="fa-solid fa-chart-line"></i> 월별 기분 트렌드 (와플 차트)</div>
+                    <div class="section-title"><i class="fa-solid fa-chart-line"></i> 월별 기분 트렌드</div>
                     <div class="year-selector">
                         <button class="year-btn" onclick="changeOverallYear(-1)"><i class="fa-solid fa-chevron-left"></i></button>
                         <span class="current-year-label" id="overallCurrentYear">2024년</span>
                         <button class="year-btn" onclick="changeOverallYear(1)"><i class="fa-solid fa-chevron-right"></i></button>
                     </div>
-                    <div class="trend-chart-container">
-                        <div class="trend-axis-wrapper" id="monthlyTrendChart"></div>
-                        <div class="trend-legend" id="moodLegend"></div>
-                    </div>
+                    <div class="waffle-grid-wrapper" id="monthlyTrendChart"></div>
+                    <div id="monthDetailContainer"></div>
+                    <div class="trend-legend" id="moodLegend"></div>
                 </div>
 
                 <div class="card">
@@ -1048,20 +1104,22 @@
         let statsCalendarDate = new Date();
         let selectedOverallYear = new Date().getFullYear();
         let selectedPrayerTargets = new Set();
+        let selectedMonthDetail = null; // 월별 상세 패널 표시용
 
         const MOOD_COLORS = {
-            joy: '#FFD700',      // 기쁨
-            happy: '#FF69B4',    // 행복
-            grateful: '#98FB98', // 감사
-            peace: '#87CEEB',    // 평온
-            normal: '#D3D3D3',   // 보통
-            bored: '#A9A9A9',    // 지루함
-            anxious: '#FFA07A',  // 불안
-            sad: '#4682B4',      // 슬픔
-            lonely: '#6A5ACD',   // 외로움
-            angry: '#FF4500',    // 화남
-            stressed: '#8B0000', // 스트레스
-            tired: '#4B0082'     // 피곤
+            ecstatic: '#FF1493',  // 매우 기쁨
+            joy: '#FFD700',       // 기쁨
+            happy: '#FF69B4',     // 행복
+            grateful: '#98FB98',  // 감사
+            peace: '#87CEEB',     // 평온
+            normal: '#D3D3D3',    // 보통
+            bored: '#A9A9A9',     // 지루함
+            anxious: '#FFA07A',   // 불안
+            sad: '#4682B4',       // 슬픔
+            lonely: '#6A5ACD',    // 외로움
+            angry: '#FF4500',     // 화남
+            stressed: '#8B0000',  // 스트레스
+            tired: '#4B0082'      // 피곤
         };
 
         // --- Init ---
@@ -1142,7 +1200,7 @@
             header.addEventListener('click', () => {
                 toggle.classList.toggle('active');
                 sub.classList.toggle('open');
-                if (toggle.classList.contains('active') && list.children.length === 0) {
+                if (toggle.classList.contains('active') && list && list.children.length === 0) {
                     addFn();
                 }
             });
@@ -1364,6 +1422,7 @@
                 allRecordsCache = e.target.result.sort((a,b) => b.timestamp - a.timestamp);
                 renderHistoryList();
                 if (currentView === 'stats') renderStats();
+                if (currentView === 'overall') renderOverallStats();
             };
         }
 
@@ -1437,27 +1496,21 @@
             renderBarChart('conditionChart', CONDITIONS, condCounts);
         }
 
-        // 🌟 여기가 새롭게 작성된 와플 차트 로직이야!
+        // 🌟 NEW: 3행 x 4열 그리드 와플 차트
         function renderOverallStats() {
-            if (allRecordsCache.length === 0) return;
-
             document.getElementById('overallCurrentYear').innerText = `${selectedOverallYear}년`;
 
             const trendContainer = document.getElementById('monthlyTrendChart');
             trendContainer.innerHTML = '';
-            
-            const yAxis = document.createElement('div');
-            yAxis.className = 'trend-y-labels';
-            yAxis.innerHTML = '<span>31일</span><span>15일</span><span>0일</span>';
-            trendContainer.appendChild(yAxis);
 
             const months = Array.from({length: 12}, (_, i) => i + 1);
+
             months.forEach(m => {
                 const monthData = allRecordsCache.filter(r => {
                     const d = new Date(r.date);
                     return d.getFullYear() === selectedOverallYear && (d.getMonth() + 1) === m;
                 });
-                
+
                 const totalMonthEntries = monthData.length;
                 const monthlyMoodCounts = {};
 
@@ -1470,20 +1523,21 @@
                     });
                 });
 
-                const maxSquares = 32; // 4 columns x 8 rows 
+                // 와플 셀 35칸 (5x7) - 한달 최대 31일 + 여유 4칸
+                const maxSquares = 35;
                 let totalMoodOccurrences = Object.values(monthlyMoodCounts).reduce((a, b) => a + b, 0);
                 let squareColors = [];
-                
+
                 if (totalMoodOccurrences > 0) {
                     let squaresToFill = Math.min(totalMonthEntries, 31);
                     let moodAllocations = Object.entries(monthlyMoodCounts).map(([id, count]) => {
                         const rawSquares = (count / totalMoodOccurrences) * squaresToFill;
                         return { id, rawSquares, intSquares: Math.floor(rawSquares), remainder: rawSquares - Math.floor(rawSquares) };
                     });
-                    
+
                     let filled = moodAllocations.reduce((acc, curr) => acc + curr.intSquares, 0);
                     moodAllocations.sort((a, b) => b.remainder - a.remainder);
-                    
+
                     while(filled < squaresToFill && moodAllocations.length > 0) {
                         for(let i=0; i<moodAllocations.length && filled < squaresToFill; i++) {
                             moodAllocations[i].intSquares++;
@@ -1500,12 +1554,10 @@
                     for(let i=0; i<totalMonthEntries; i++) squareColors.push('#ddd');
                 }
 
-                // 모자란 칸은 회색 빈칸으로 채움
                 while(squareColors.length < maxSquares) {
                     squareColors.push('empty');
                 }
-                
-                // 아래에서 위로 쌓이도록 배열을 뒤집기
+
                 squareColors.reverse();
 
                 const squaresHtml = squareColors.map(color => {
@@ -1513,25 +1565,42 @@
                     return `<div class="waffle-cell" style="background-color: ${color};"></div>`;
                 }).join('');
 
-                const tooltipDetails = Object.entries(monthlyMoodCounts)
-                    .map(([id, count]) => {
-                        const mObj = MOODS.find(mx => mx.id === id);
-                        return mObj ? `${mObj.icon} ${mObj.label}: ${count}회` : '';
-                    }).join('<br>');
+                // 1위 기분 이모지 찾기
+                let topMoodEmoji = '';
+                if (Object.keys(monthlyMoodCounts).length > 0) {
+                    const topMoodId = Object.entries(monthlyMoodCounts)
+                        .sort((a, b) => b[1] - a[1])[0][0];
+                    const topMood = MOODS.find(mx => mx.id === topMoodId);
+                    if (topMood) topMoodEmoji = topMood.icon;
+                }
 
-                const item = document.createElement('div');
-                item.className = 'trend-bar-item';
-                
-                item.innerHTML = `
-                    <div class="trend-val-tooltip">${totalMonthEntries}일 기록<br>${tooltipDetails}</div>
-                    <div class="waffle-grid">
-                        ${squaresHtml}
+                const card = document.createElement('div');
+                card.className = `month-card ${totalMonthEntries === 0 ? 'empty' : ''} ${selectedMonthDetail === m ? 'selected' : ''}`;
+                card.dataset.month = m;
+
+                card.innerHTML = `
+                    <div class="month-card-header">
+                        <span class="month-label">${m}월</span>
+                        ${topMoodEmoji ? `<span class="month-top-emoji">${topMoodEmoji}</span>` : ''}
                     </div>
-                    <div class="trend-x-text">${m}월</div>
+                    <div class="month-waffle">${squaresHtml}</div>
+                    <div class="month-card-footer">${totalMonthEntries}일</div>
                 `;
 
-                trendContainer.appendChild(item);
+                card.addEventListener('click', () => {
+                    if (totalMonthEntries === 0) {
+                        showToast(`${m}월에는 기록이 없어`);
+                        return;
+                    }
+                    selectedMonthDetail = (selectedMonthDetail === m) ? null : m;
+                    renderOverallStats();
+                });
+
+                trendContainer.appendChild(card);
             });
+
+            // 상세 패널 렌더링
+            renderMonthDetailPanel();
 
             // Legend
             const legendContainer = document.getElementById('moodLegend');
@@ -1545,15 +1614,19 @@
             // Year Summary
             const years = [...new Set(allRecordsCache.map(r => new Date(r.date).getFullYear()))].sort((a,b) => b-a);
             const yearListContainer = document.getElementById('overallYearStats');
-            yearListContainer.innerHTML = years.map(y => {
-                const yearData = allRecordsCache.filter(r => new Date(r.date).getFullYear() === y);
-                return `
-                    <div style="background:#f9fafb; padding:12px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-weight:700">${y}년</span>
-                        <span style="font-size:0.9rem; color:var(--text-sub)">총 ${yearData.length}일 기록됨</span>
-                    </div>
-                `;
-            }).join('');
+            if (years.length === 0) {
+                yearListContainer.innerHTML = '<div style="text-align:center; color:#9ca3af; padding:20px;">기록이 없습니다.</div>';
+            } else {
+                yearListContainer.innerHTML = years.map(y => {
+                    const yearData = allRecordsCache.filter(r => new Date(r.date).getFullYear() === y);
+                    return `
+                        <div style="background:#f9fafb; padding:12px; border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-weight:700">${y}년</span>
+                            <span style="font-size:0.9rem; color:var(--text-sub)">총 ${yearData.length}일 기록됨</span>
+                        </div>
+                    `;
+                }).join('');
+            }
 
             // Overall Distribution Charts
             const moodCounts = {};
@@ -1573,8 +1646,69 @@
             renderBarChart('overallConditionChart', CONDITIONS, condCounts);
         }
 
+        // 월별 상세 패널 렌더링 (탭 시 표시)
+        function renderMonthDetailPanel() {
+            const container = document.getElementById('monthDetailContainer');
+            if (selectedMonthDetail === null) {
+                container.innerHTML = '';
+                return;
+            }
+
+            const m = selectedMonthDetail;
+            const monthData = allRecordsCache.filter(r => {
+                const d = new Date(r.date);
+                return d.getFullYear() === selectedOverallYear && (d.getMonth() + 1) === m;
+            });
+
+            const monthlyMoodCounts = {};
+            monthData.forEach(r => {
+                const vals = r.mood.values || (r.mood.value ? [r.mood.value] : []);
+                vals.forEach(vid => {
+                    if (MOODS.some(mx => mx.id === vid)) {
+                        monthlyMoodCounts[vid] = (monthlyMoodCounts[vid] || 0) + 1;
+                    }
+                });
+            });
+
+            const sortedMoods = Object.entries(monthlyMoodCounts)
+                .sort((a, b) => b[1] - a[1]);
+
+            let listHtml = '';
+            if (sortedMoods.length === 0) {
+                listHtml = '<div class="month-detail-empty">기분 기록이 없어</div>';
+            } else {
+                listHtml = sortedMoods.map(([id, count]) => {
+                    const mood = MOODS.find(mx => mx.id === id);
+                    if (!mood) return '';
+                    return `
+                        <div class="month-detail-row">
+                            <div class="month-detail-color" style="background-color: ${MOOD_COLORS[id]}"></div>
+                            <span class="month-detail-label">${mood.icon} ${mood.label}</span>
+                            <span class="month-detail-count">${count}회</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            container.innerHTML = `
+                <div class="month-detail-panel">
+                    <div class="month-detail-title">
+                        <span><i class="fa-solid fa-circle-info"></i> ${selectedOverallYear}년 ${m}월 상세 (총 ${monthData.length}일 기록)</span>
+                        <button class="close-btn" onclick="closeMonthDetail()"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div class="month-detail-list">${listHtml}</div>
+                </div>
+            `;
+        }
+
+        function closeMonthDetail() {
+            selectedMonthDetail = null;
+            renderOverallStats();
+        }
+
         function changeOverallYear(delta) {
             selectedOverallYear += delta;
+            selectedMonthDetail = null;
             renderOverallStats();
         }
 
