@@ -1,4 +1,4 @@
-<!-- Version 2.1 (Text Search & UI Fix) -->
+<!-- Version 2.2 (Waffle Chart Update) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -130,8 +130,8 @@
         /* Inputs */
         input[type="date"], input[type="text"], textarea, select {
             width: 100%;
-            max-width: 100%; /* Fix for iOS overflow */
-            margin: 0;       /* Fix for iOS default margins */
+            max-width: 100%;
+            margin: 0;       
             padding: 12px;
             border: 1px solid var(--border);
             border-radius: 10px;
@@ -140,7 +140,7 @@
             outline: none;
             background: #fff;
             color: var(--text-main);
-            -webkit-appearance: none; /* Remove default iOS styling */
+            -webkit-appearance: none;
         }
         
         input:focus, textarea:focus, select:focus {
@@ -216,7 +216,7 @@
             border-radius: 25px;
             position: relative;
             transition: background-color 0.3s;
-            pointer-events: none; /* Handled by parent click */
+            pointer-events: none; 
         }
         .toggle-switch::after {
             content: '';
@@ -233,7 +233,7 @@
         .toggle-switch.active { background-color: var(--primary); }
         .toggle-switch.active::after { transform: translateX(22px); }
 
-        /* Sub-forms (Dynamic lists) */
+        /* Sub-forms */
         .sub-form {
             display: none;
             margin-top: 10px;
@@ -326,10 +326,9 @@
             align-items: center;
         }
         
-        /* Flex Input for Search */
         .search-container input[type="text"] {
-            flex: 1; /* Occupy remaining space */
-            min-width: 0; /* Prevent overflow in flex */
+            flex: 1; 
+            min-width: 0; 
         }
 
         .btn-small {
@@ -473,7 +472,6 @@
             color: var(--primary);
         }
 
-        /* Calendar icon overlay for the date filter */
         #historyDateFilter::before {
             content: '\f133';
             font-family: 'Font Awesome 6 Free';
@@ -549,7 +547,7 @@
         .chart-bar-fill { height: 100%; background: var(--primary); border-radius: 6px; transition: width 0.5s ease-out; }
         .chart-value { width: 30px; font-size: 0.8rem; font-weight: 600; text-align: right; }
 
-        /* Mini Calendar for Stats */
+        /* Mini Calendar */
         .mini-calendar {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -577,14 +575,14 @@
             color: white;
         }
 
-        /* Trend Chart (Vertical Bar Chart) */
+        /* Waffle Trend Chart (NEW) */
         .trend-chart-container {
             margin-top: 20px;
             padding: 10px 5px 30px 5px;
         }
         .trend-axis-wrapper {
-            margin-left: 30px;
-            height: 160px;
+            margin-left: 35px;
+            height: 180px; 
             border-left: 2px solid var(--border);
             border-bottom: 2px solid var(--border);
             display: flex;
@@ -599,20 +597,27 @@
             justify-content: flex-end;
             align-items: center;
             position: relative;
+            padding-bottom: 5px;
         }
-        .trend-bar-stack {
-            width: 65%;
-            display: flex;
-            flex-direction: column-reverse;
-            transition: height 0.6s ease-out;
-            min-height: 2px;
-            overflow: hidden;
-            border-radius: 4px 4px 0 0;
-        }
-        .trend-bar-segment {
+        
+        .waffle-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            gap: 2px;
             width: 100%;
-            transition: height 0.6s ease-out;
+            max-width: 26px; /* Waffle size tweak */
+            margin-bottom: 2px;
         }
+        .waffle-cell {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 2px;
+        }
+        .waffle-cell.empty {
+            background-color: #f3f4f6;
+        }
+
         .trend-legend {
             display: flex;
             flex-wrap: wrap;
@@ -634,7 +639,7 @@
         }
         .trend-x-text {
             position: absolute;
-            bottom: -22px;
+            bottom: -25px;
             font-size: 0.65rem;
             color: var(--text-sub);
             width: 100%;
@@ -642,7 +647,7 @@
         }
         .trend-y-labels {
             position: absolute;
-            left: -35px;
+            left: -38px;
             height: 100%;
             display: flex;
             flex-direction: column;
@@ -655,14 +660,15 @@
         }
         .trend-val-tooltip {
             position: absolute;
-            top: -22px;
+            top: -30px;
             background: var(--text-main);
             color: white;
-            padding: 2px 5px;
+            padding: 4px 8px;
             border-radius: 4px;
             font-size: 0.65rem;
             display: none;
             white-space: nowrap;
+            z-index: 10;
         }
         .trend-bar-item:hover .trend-val-tooltip { display: block; }
 
@@ -797,31 +803,26 @@
         <main style="padding: 0; overflow: hidden;">
             <!-- Record View -->
             <div id="recordView" class="view-container active">
-                <!-- Date -->
                 <div class="card">
                     <div class="section-title"><i class="fa-regular fa-clock"></i> 날짜 선택</div>
                     <input type="date" id="dateInput">
                 </div>
 
-                <!-- Mood -->
                 <div class="card">
                     <div class="section-title"><i class="fa-regular fa-face-smile"></i> 오늘의 기분</div>
                     <div class="chip-grid" id="moodContainer"></div>
                     <input type="text" id="moodDetail" placeholder="기분을 자세히 설명해주세요 (선택)">
                 </div>
 
-                <!-- Condition -->
                 <div class="card">
                     <div class="section-title"><i class="fa-solid fa-heart-pulse"></i> 몸 컨디션</div>
                     <div class="chip-grid" id="conditionContainer"></div>
                     <input type="text" id="conditionDetail" placeholder="몸 상태를 자세히 설명해주세요 (선택)">
                 </div>
 
-                <!-- Habits -->
                 <div class="card">
                     <div class="section-title"><i class="fa-solid fa-check-double"></i> 습관 체크</div>
                     
-                    <!-- Prayer -->
                     <div class="habit-block">
                         <div class="habit-header" id="header-prayer">
                             <div class="habit-label"><span class="habit-icon">🙏</span> 기도</div>
@@ -832,7 +833,6 @@
                         </div>
                     </div>
 
-                    <!-- Exercise -->
                     <div class="habit-block">
                         <div class="habit-header" id="header-exercise">
                             <div class="habit-label"><span class="habit-icon">💪</span> 운동 기록</div>
@@ -844,7 +844,6 @@
                         </div>
                     </div>
 
-                    <!-- English -->
                     <div class="habit-block">
                         <div class="habit-header" id="header-english">
                             <div class="habit-label"><span class="habit-icon">📚</span> 영어 공부</div>
@@ -857,7 +856,6 @@
                     </div>
                 </div>
 
-                <!-- Reflection -->
                 <div class="card">
                     <div class="section-title"><i class="fa-regular fa-comment-dots"></i> 오늘의 한마디</div>
                     <textarea id="reflectionInput" placeholder="오늘 하루 느낀 점, 감사한 점, 반성할 점 등을 자유롭게 적어주세요."></textarea>
@@ -927,7 +925,7 @@
             <!-- Overall View -->
             <div id="overallView" class="view-container">
                 <div class="card">
-                    <div class="section-title"><i class="fa-solid fa-chart-line"></i> 월별 기분 트렌드</div>
+                    <div class="section-title"><i class="fa-solid fa-chart-line"></i> 월별 기분 트렌드 (와플 차트)</div>
                     <div class="year-selector">
                         <button class="year-btn" onclick="changeOverallYear(-1)"><i class="fa-solid fa-chevron-left"></i></button>
                         <span class="current-year-label" id="overallCurrentYear">2024년</span>
@@ -1028,7 +1026,7 @@
             { id: 'etc', label: '기타' }
         ];
         const ENGLISH_TYPES = ["쉐도잉/스피킹", "리스닝/듣기", "단어/어휘", "독해/원서", "문법/작문", "화상영어", "미드/영화", "기타"];
-        const EXERCISE_NAMES = ["스쿼트", "데드리프트", "벤치프레스", "오버헤드프레스", "풀업/턱걸이", "패러럴풀업", "푸쉬업", "런닝/조깅", "사이클", "플랭크", "덤벨컬", "바벨컬", "레그프레스", "래트풀다운", "기타"];
+        const EXERCISE_NAMES = ["스쿼트", "데드리프트", "벤치프레스", "오버헤드프레스", "풀업/턱걸이", "패러럴풀업", "푸쉬업", "딥스", "런닝/조깅", "사이클", "플랭크", "덤벨컬", "바벨컬", "레그프레스", "래트풀다운", "기타"];
 
         const SET_OPTIONS = [...Array.from({length:10}, (_,i)=>`${i+1}세트`), "15세트", "20세트"];
         const REST_OPTIONS = ["휴식 없음", "30초", "1분", "1분 30초", "2분", "2분 30초", "3분", "5분"];
@@ -1084,7 +1082,6 @@
             // Search Actions
             document.getElementById('searchBtn').addEventListener('click', performSearch);
             document.getElementById('searchResetBtn').addEventListener('click', resetSearch);
-            // Allow Enter key in search input
             document.getElementById('searchInput').addEventListener('keyup', (e) => {
                 if (e.key === 'Enter') performSearch();
             });
@@ -1364,7 +1361,6 @@
         function loadRecords() {
             const tx = db.transaction(['entries'], 'readonly');
             tx.objectStore('entries').getAll().onsuccess = (e) => {
-                // Sort Descending
                 allRecordsCache = e.target.result.sort((a,b) => b.timestamp - a.timestamp);
                 renderHistoryList();
                 if (currentView === 'stats') renderStats();
@@ -1395,10 +1391,8 @@
         function renderStats() {
             if (allRecordsCache.length === 0) return;
 
-            // 1. Summary Stats (Always use full cache for streak/total)
             document.getElementById('statTotalDays').innerText = allRecordsCache.length;
             
-            // Streak Calculation
             let streak = 0;
             const today = new Date().toISOString().split('T')[0];
             const dates = [...new Set(allRecordsCache.map(r => r.date))].sort().reverse();
@@ -1417,10 +1411,8 @@
             }
             document.getElementById('statStreak').innerText = streak;
 
-            // 2. Calendar
             renderStatsCalendar();
 
-            // 3. Charts (Filter by selected month)
             const targetYear = statsCalendarDate.getFullYear();
             const targetMonth = statsCalendarDate.getMonth();
             const monthlyData = allRecordsCache.filter(r => {
@@ -1445,20 +1437,18 @@
             renderBarChart('conditionChart', CONDITIONS, condCounts);
         }
 
+        // 🌟 여기가 새롭게 작성된 와플 차트 로직이야!
         function renderOverallStats() {
             if (allRecordsCache.length === 0) return;
 
-            // 0. Year Label
             document.getElementById('overallCurrentYear').innerText = `${selectedOverallYear}년`;
 
-            // 1. Monthly Trend Chart (Stacked Vertical Bars for Moods)
             const trendContainer = document.getElementById('monthlyTrendChart');
             trendContainer.innerHTML = '';
             
-            // Y-axis labels (Max 31 days)
             const yAxis = document.createElement('div');
             yAxis.className = 'trend-y-labels';
-            yAxis.innerHTML = '<span>31</span><span>15</span><span>0</span>';
+            yAxis.innerHTML = '<span>31일</span><span>15일</span><span>0일</span>';
             trendContainer.appendChild(yAxis);
 
             const months = Array.from({length: 12}, (_, i) => i + 1);
@@ -1469,10 +1459,8 @@
                 });
                 
                 const totalMonthEntries = monthData.length;
-                const totalPercent = (totalMonthEntries / 31) * 100;
-
-                // Aggregate mood counts for this month
                 const monthlyMoodCounts = {};
+
                 monthData.forEach(r => {
                     const vals = r.mood.values || (r.mood.value ? [r.mood.value] : []);
                     vals.forEach(vid => {
@@ -1482,49 +1470,70 @@
                     });
                 });
 
-                // Calculate segments
+                const maxSquares = 32; // 4 columns x 8 rows 
                 let totalMoodOccurrences = Object.values(monthlyMoodCounts).reduce((a, b) => a + b, 0);
+                let squareColors = [];
                 
+                if (totalMoodOccurrences > 0) {
+                    let squaresToFill = Math.min(totalMonthEntries, 31);
+                    let moodAllocations = Object.entries(monthlyMoodCounts).map(([id, count]) => {
+                        const rawSquares = (count / totalMoodOccurrences) * squaresToFill;
+                        return { id, rawSquares, intSquares: Math.floor(rawSquares), remainder: rawSquares - Math.floor(rawSquares) };
+                    });
+                    
+                    let filled = moodAllocations.reduce((acc, curr) => acc + curr.intSquares, 0);
+                    moodAllocations.sort((a, b) => b.remainder - a.remainder);
+                    
+                    while(filled < squaresToFill && moodAllocations.length > 0) {
+                        for(let i=0; i<moodAllocations.length && filled < squaresToFill; i++) {
+                            moodAllocations[i].intSquares++;
+                            filled++;
+                        }
+                    }
+
+                    moodAllocations.forEach(alloc => {
+                        for(let i=0; i<alloc.intSquares; i++) {
+                            squareColors.push(MOOD_COLORS[alloc.id] || '#ccc');
+                        }
+                    });
+                } else if (totalMonthEntries > 0) {
+                    for(let i=0; i<totalMonthEntries; i++) squareColors.push('#ddd');
+                }
+
+                // 모자란 칸은 회색 빈칸으로 채움
+                while(squareColors.length < maxSquares) {
+                    squareColors.push('empty');
+                }
+                
+                // 아래에서 위로 쌓이도록 배열을 뒤집기
+                squareColors.reverse();
+
+                const squaresHtml = squareColors.map(color => {
+                    if(color === 'empty') return `<div class="waffle-cell empty"></div>`;
+                    return `<div class="waffle-cell" style="background-color: ${color};"></div>`;
+                }).join('');
+
+                const tooltipDetails = Object.entries(monthlyMoodCounts)
+                    .map(([id, count]) => {
+                        const mObj = MOODS.find(mx => mx.id === id);
+                        return mObj ? `${mObj.icon} ${mObj.label}: ${count}회` : '';
+                    }).join('<br>');
+
                 const item = document.createElement('div');
                 item.className = 'trend-bar-item';
                 
-                // Tooltip content
-                const tooltipDetails = Object.entries(monthlyMoodCounts)
-                    .map(([id, count]) => {
-                        const m = MOODS.find(mx => mx.id === id);
-                        return `${m.icon} ${m.label}: ${count}회`;
-                    }).join('<br>');
-
                 item.innerHTML = `
                     <div class="trend-val-tooltip">${totalMonthEntries}일 기록<br>${tooltipDetails}</div>
-                    <div class="trend-bar-stack" style="height: 0%"></div>
-                    <div class="trend-x-text">${m}</div>
+                    <div class="waffle-grid">
+                        ${squaresHtml}
+                    </div>
+                    <div class="trend-x-text">${m}월</div>
                 `;
 
-                const stack = item.querySelector('.trend-bar-stack');
-                if (totalMoodOccurrences > 0) {
-                    Object.entries(monthlyMoodCounts).forEach(([id, count]) => {
-                        const segment = document.createElement('div');
-                        segment.className = 'trend-bar-segment';
-                        const segmentPercent = (count / totalMoodOccurrences) * 100;
-                        segment.style.height = `${segmentPercent}%`;
-                        segment.style.backgroundColor = MOOD_COLORS[id] || '#ccc';
-                        stack.appendChild(segment);
-                    });
-                } else if (totalMonthEntries > 0) {
-                    // Fallback for entries with no mood (shouldn't happen with current UI)
-                    const segment = document.createElement('div');
-                    segment.className = 'trend-bar-segment';
-                    segment.style.height = '100%';
-                    segment.style.backgroundColor = '#ddd';
-                    stack.appendChild(segment);
-                }
-
                 trendContainer.appendChild(item);
-                setTimeout(() => stack.style.height = `${totalPercent}%`, 50);
             });
 
-            // 1.1 Render Legend
+            // Legend
             const legendContainer = document.getElementById('moodLegend');
             legendContainer.innerHTML = MOODS.map(m => `
                 <div class="legend-item">
@@ -1533,7 +1542,7 @@
                 </div>
             `).join('');
 
-            // 2. Year Summary List
+            // Year Summary
             const years = [...new Set(allRecordsCache.map(r => new Date(r.date).getFullYear()))].sort((a,b) => b-a);
             const yearListContainer = document.getElementById('overallYearStats');
             yearListContainer.innerHTML = years.map(y => {
@@ -1546,7 +1555,7 @@
                 `;
             }).join('');
 
-            // 3. Total Mood Distribution
+            // Overall Distribution Charts
             const moodCounts = {};
             MOODS.forEach(m => moodCounts[m.id] = 0);
             allRecordsCache.forEach(r => { 
@@ -1555,7 +1564,6 @@
             });
             renderBarChart('overallMoodChart', MOODS, moodCounts);
 
-            // 4. Total Condition Distribution
             const condCounts = {};
             CONDITIONS.forEach(c => condCounts[c.id] = 0);
             allRecordsCache.forEach(r => { 
@@ -1657,7 +1665,7 @@
             };
         }
 
-        // --- Search & Filtering (Text Based) ---
+        // --- Search & Filtering ---
         function performSearch() {
             const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
             const dateFilter = document.getElementById('historyDateFilter').value;
@@ -1672,7 +1680,7 @@
             document.getElementById('searchInput').value = '';
             document.getElementById('historyDateFilter').value = '';
             isSearching = false;
-            showAllHistory = false; // Reset pagination too
+            showAllHistory = false;
             renderHistoryList();
         }
 
@@ -1680,13 +1688,11 @@
             const container = document.getElementById('historyList');
             const btnMore = document.getElementById('showMoreBtn');
 
-            // 1. Filter Logic
             let displayList = allRecordsCache;
             
             if(isSearching) {
                 displayList = allRecordsCache.filter(r => {
                     let match = true;
-                    
                     if(keyword) {
                         const englishSearchText = (r.habits.english.items || r.habits.english.types || []).map(ei => {
                             if(typeof ei === 'string') return ei;
@@ -1708,17 +1714,14 @@
                     if(dateFilter) {
                         if(r.date !== dateFilter) match = false;
                     }
-                    
                     return match;
                 });
             }
 
-            // 2. Pagination Logic
             const totalCount = displayList.length;
             let visibleList = displayList;
 
             if(!isSearching && !showAllHistory) {
-                // If not searching and not expanded, show only top 5
                 visibleList = displayList.slice(0, 5);
                 btnMore.style.display = (totalCount > 5) ? 'block' : 'none';
                 btnMore.innerText = `더보기 (${totalCount - 5}개 더 있음)`;
@@ -1726,14 +1729,12 @@
                 btnMore.style.display = 'none';
             }
 
-            // 3. Render
             if(visibleList.length === 0) {
                 container.innerHTML = `<div style="text-align:center; color:#9ca3af; padding:30px;">${isSearching ? '검색 결과가 없습니다.' : '기록이 없습니다.'}</div>`;
                 return;
             }
 
             container.innerHTML = visibleList.map(r => {
-                // Determine icons (Multi-select)
                 const moodVals = r.mood?.values || (r.mood?.value ? [r.mood.value] : []);
                 const moodIcons = moodVals.map(vid => {
                     const found = MOODS.find(m => m.id === vid);
@@ -1754,7 +1755,6 @@
                     if(items.length > 0) {
                         englishStr = items.map(ei => `${ei.type}(${ei.duration}/${ei.count})`).join(' / ');
                     } else if (r.habits.english.types) {
-                        // Migration for old format
                         englishStr = r.habits.english.types.join(', ') || '완료';
                     } else {
                         englishStr = '완료';
@@ -1766,7 +1766,7 @@
                     const blocks = r.habits.exercise.list || [];
                     if(blocks.length > 0) {
                         exerciseStr = blocks.map((b, idx) => {
-                            if (!b.exercises) return '기록 없음'; // Safety
+                            if (!b.exercises) return '기록 없음';
                             const exList = b.exercises.map(e => {
                                 if(e.name === '런닝/조깅') return `${e.name}(${e.duration})`;
                                 return `${e.name}(${e.weight}/${e.reps})`;
@@ -1820,7 +1820,6 @@
             selectedPrayerTargets.clear();
             renderMultiSelectChips('prayerContainer', PRAYER_TARGETS, selectedPrayerTargets);
 
-            // Reset Habit Toggles
             ['prayer', 'english', 'exercise'].forEach(key => {
                 const toggle = document.getElementById(`toggle-${key}`);
                 const sub = document.getElementById(`sub-${key}`);
@@ -1890,9 +1889,6 @@
 
                 let count = 0;
                 data.forEach(item => {
-                    // Remove ID to ensure new unique ID generation in local DB (Safe Merge)
-                    // If you want to force overwrite, keep ID, but that risks key errors.
-                    // This app prioritizes safe adding.
                     delete item.id; 
                     store.add(item);
                     count++;
