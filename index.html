@@ -1,4 +1,4 @@
-<!-- Version 2.3 (Waffle Chart 3x4 Grid Update) -->
+<!-- Version 2.4 (Stacked Bar Chart - 3 Group Classification) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -17,7 +17,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+ 
     <style>
         :root {
             --primary: #ef4444;
@@ -32,12 +32,12 @@
             --danger-bg: #fee2e2;
             --success: #10b981;
         }
-
+ 
         * {
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
         }
-
+ 
         body {
             font-family: 'Noto Sans KR', sans-serif;
             background-color: var(--bg);
@@ -48,7 +48,7 @@
             display: flex;
             justify-content: center;
         }
-
+ 
         #app {
             width: 100%;
             max-width: 600px;
@@ -58,7 +58,7 @@
             height: 100vh;
             overflow: hidden;
         }
-
+ 
         /* Header */
         header {
             background-color: var(--card-bg);
@@ -69,7 +69,7 @@
             align-items: center;
             z-index: 10;
         }
-
+ 
         h1 {
             font-size: 1.1rem;
             font-weight: 700;
@@ -79,12 +79,12 @@
             align-items: center;
             gap: 8px;
         }
-
+ 
         .header-actions {
             display: flex;
             gap: 8px;
         }
-
+ 
         .btn-icon {
             background: none;
             border: none;
@@ -99,7 +99,7 @@
             background-color: var(--bg);
             color: var(--primary);
         }
-
+ 
         /* Main Content */
         main {
             flex: 1;
@@ -107,7 +107,7 @@
             padding: 20px;
             padding-bottom: 100px; 
         }
-
+ 
         .card {
             background-color: var(--card-bg);
             border-radius: 16px;
@@ -116,7 +116,7 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
             border: 1px solid var(--border);
         }
-
+ 
         .section-title {
             font-size: 0.95rem;
             font-weight: 600;
@@ -126,7 +126,7 @@
             align-items: center;
             gap: 6px;
         }
-
+ 
         /* Inputs */
         input[type="date"], input[type="text"], textarea, select {
             width: 100%;
@@ -147,12 +147,12 @@
             border-color: var(--primary);
             box-shadow: 0 0 0 2px var(--primary-light);
         }
-
+ 
         textarea {
             height: 80px;
             resize: none;
         }
-
+ 
         /* Chips Grid (Mood/Condition) */
         .chip-grid {
             display: grid;
@@ -160,7 +160,7 @@
             gap: 8px;
             margin-bottom: 10px;
         }
-
+ 
         .chip {
             border: 1px solid var(--border);
             border-radius: 12px;
@@ -174,16 +174,16 @@
             align-items: center;
             gap: 4px;
         }
-
+ 
         .chip span.icon { font-size: 1.5rem; }
         .chip span.text { font-size: 0.8rem; font-weight: 500; color: var(--text-sub); }
-
+ 
         .chip.selected {
             background-color: var(--primary-light);
             border-color: var(--primary);
         }
         .chip.selected span.text { color: var(--primary); }
-
+ 
         /* Habit Toggles & Sub-sections */
         .habit-block {
             border-bottom: 1px solid #f3f4f6;
@@ -191,7 +191,7 @@
             margin-bottom: 15px;
         }
         .habit-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-
+ 
         .habit-header {
             display: flex;
             justify-content: space-between;
@@ -208,7 +208,7 @@
             gap: 10px;
         }
         .habit-icon { width: 24px; text-align: center; font-size: 1.2rem; }
-
+ 
         .toggle-switch {
             width: 50px;
             height: 28px;
@@ -232,7 +232,7 @@
         }
         .toggle-switch.active { background-color: var(--primary); }
         .toggle-switch.active::after { transform: translateX(22px); }
-
+ 
         /* Sub-forms */
         .sub-form {
             display: none;
@@ -247,13 +247,13 @@
             from { opacity: 0; transform: translateY(-5px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
+ 
         .dynamic-list {
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
-
+ 
         .dynamic-row {
             display: flex;
             gap: 8px;
@@ -262,7 +262,7 @@
             padding: 8px;
             border-radius: 8px;
         }
-
+ 
         .btn-add {
             width: 100%;
             padding: 8px;
@@ -276,7 +276,7 @@
             transition: all 0.2s;
         }
         .btn-add:hover { border-color: var(--primary); color: var(--primary); }
-
+ 
         .btn-remove {
             background: var(--danger-bg);
             border: none;
@@ -286,7 +286,7 @@
             padding: 8px;
             display: flex; align-items: center; justify-content: center;
         }
-
+ 
         /* Exercise Specifics */
         .exercise-row {
             display: flex;
@@ -299,10 +299,10 @@
         }
         .exercise-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
         .exercise-details { display: flex; gap: 8px; }
-
+ 
         .running-options { display: none; gap: 8px; margin-top: 4px; }
         .running-options.active { display: flex; }
-
+ 
         /* Save Button */
         .btn-save {
             width: 100%;
@@ -318,7 +318,7 @@
             transition: transform 0.1s;
         }
         .btn-save:active { transform: scale(0.98); }
-
+ 
         /* Search Section */
         .search-container {
             display: flex;
@@ -330,7 +330,7 @@
             flex: 1; 
             min-width: 0; 
         }
-
+ 
         .btn-small {
             padding: 10px 15px;
             border-radius: 10px;
@@ -349,7 +349,7 @@
             background: #e5e7eb;
             color: #374151;
         }
-
+ 
         /* History */
         .history-section { margin-top: 30px; }
         .history-card {
@@ -385,7 +385,7 @@
             cursor: pointer;
             font-weight: 500;
         }
-
+ 
         /* Calendar */
         .calendar-container {
             background: #fff;
@@ -471,7 +471,7 @@
             background: var(--bg);
             color: var(--primary);
         }
-
+ 
         #historyDateFilter::before {
             content: '\f133';
             font-family: 'Font Awesome 6 Free';
@@ -483,7 +483,7 @@
             color: var(--primary);
             pointer-events: none;
         }
-
+ 
         /* Navigation */
         .nav-tabs {
             display: flex;
@@ -506,7 +506,7 @@
             color: var(--primary);
             border-bottom-color: var(--primary);
         }
-
+ 
         /* Views */
         .view-container {
             display: none;
@@ -519,7 +519,7 @@
         .view-container.active {
             display: flex;
         }
-
+ 
         /* Stats Specific */
         .stats-summary-card {
             background: var(--primary-light);
@@ -532,7 +532,7 @@
         }
         .stat-item .value { font-size: 1.2rem; font-weight: 700; color: var(--primary); }
         .stat-item .label { font-size: 0.75rem; color: var(--text-sub); }
-
+ 
         .chart-container {
             margin-bottom: 25px;
         }
@@ -546,7 +546,7 @@
         .chart-bar-bg { flex: 1; height: 12px; background: #e5e7eb; border-radius: 6px; overflow: hidden; }
         .chart-bar-fill { height: 100%; background: var(--primary); border-radius: 6px; transition: width 0.5s ease-out; }
         .chart-value { width: 30px; font-size: 0.8rem; font-weight: 600; text-align: right; }
-
+ 
         /* Mini Calendar */
         .mini-calendar {
             display: grid;
@@ -574,83 +574,115 @@
             background: var(--primary);
             color: white;
         }
-
-        /* === Waffle Trend Chart (NEW: 3x4 Grid Layout) === */
-        .waffle-grid-wrapper {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
+ 
+        /* === Stacked Bar Chart (NEW: 월별 스택 막대) === */
+        .stack-chart-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
             margin-top: 15px;
             margin-bottom: 15px;
         }
-
-        .month-card {
-            background: #fafbfc;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 8px 6px;
+ 
+        .stack-bar-row {
             display: flex;
-            flex-direction: column;
             align-items: center;
+            gap: 10px;
             cursor: pointer;
-            transition: all 0.2s;
+            padding: 6px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        .stack-bar-row:hover {
+            background: #f9fafb;
+        }
+        .stack-bar-row.selected {
+            background: var(--primary-light);
+        }
+        .stack-bar-row.empty {
+            opacity: 0.5;
+            cursor: default;
+        }
+        .stack-bar-row.empty:hover {
+            background: transparent;
+        }
+ 
+        .stack-month-label {
+            width: 36px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-main);
+            text-align: right;
+            flex-shrink: 0;
+        }
+ 
+        .stack-bar-bg {
+            flex: 1;
+            height: 24px;
+            background: #f3f4f6;
+            border-radius: 6px;
+            overflow: hidden;
+            display: flex;
             position: relative;
         }
-        .month-card:active {
-            transform: scale(0.97);
-        }
-        .month-card.empty {
-            opacity: 0.4;
-        }
-        .month-card.selected {
-            border-color: var(--primary);
-            background: var(--primary-light);
-            box-shadow: 0 2px 6px rgba(239, 68, 68, 0.15);
-        }
-
-        .month-card-header {
+ 
+        .stack-segment {
+            height: 100%;
+            transition: width 0.5s ease-out;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 4px;
-            margin-bottom: 6px;
-            width: 100%;
-        }
-        .month-label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
+            color: white;
             font-weight: 700;
-            color: var(--text-main);
-        }
-        .month-top-emoji {
-            font-size: 0.85rem;
-        }
-
-        .month-waffle {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            grid-template-rows: repeat(7, 1fr);
-            gap: 2px;
-            width: 100%;
-            aspect-ratio: 5/7;
-            margin-bottom: 4px;
-        }
-        .month-waffle .waffle-cell {
-            width: 100%;
-            height: 100%;
-            border-radius: 2px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
             min-width: 0;
-            min-height: 0;
+            overflow: hidden;
         }
-        .month-waffle .waffle-cell.empty {
-            background-color: #eef0f3;
-        }
-
-        .month-card-footer {
-            font-size: 0.65rem;
+        .stack-segment.positive { background: #10b981; }
+        .stack-segment.neutral { background: #fbbf24; }
+        .stack-segment.negative { background: #ef4444; }
+ 
+        .stack-bar-count {
+            width: 38px;
+            font-size: 0.75rem;
             color: var(--text-sub);
+            text-align: left;
+            flex-shrink: 0;
+        }
+ 
+        .stack-empty-text {
+            flex: 1;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-sub);
+            line-height: 24px;
+        }
+ 
+        /* 3그룹 범례 */
+        .group-legend {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 16px;
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 10px;
+        }
+        .group-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            color: var(--text-main);
             font-weight: 500;
         }
-
+        .group-legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+        }
+ 
         /* Detail Panel (Tap to Expand) */
         .month-detail-panel {
             margin-top: 10px;
@@ -708,7 +740,7 @@
             font-size: 0.85rem;
             padding: 10px 0;
         }
-
+ 
         .trend-legend {
             display: flex;
             flex-wrap: wrap;
@@ -728,7 +760,7 @@
             height: 10px;
             border-radius: 2px;
         }
-
+ 
         .year-selector {
             display: flex;
             justify-content: center;
@@ -745,7 +777,7 @@
         }
         .year-btn:hover { color: var(--primary); }
         .current-year-label { font-size: 1.1rem; font-weight: 700; color: var(--text-main); }
-
+ 
         /* Exercise Block & Rounds */
         .exercise-block {
             background: #fff;
@@ -811,7 +843,7 @@
             color: var(--text-sub);
             font-weight: 600;
         }
-
+ 
         /* Modals */
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -825,7 +857,7 @@
         }
         .modal-title { margin: 0 0 15px 0; font-size: 1.1rem; color: var(--primary); display: flex; align-items: center; gap: 8px;}
         .modal-textarea { height: 150px; font-size: 0.8rem; background: #f9fafb; margin-bottom: 15px; border-radius: 8px; padding: 10px; font-family: monospace; }
-
+ 
         /* Toast */
         .toast {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
@@ -850,13 +882,13 @@
                 </button>
             </div>
         </header>
-
+ 
         <nav class="nav-tabs">
             <div class="nav-tab active" id="tabRecord" onclick="switchView('record')"><i class="fa-solid fa-pen-to-square"></i> 기록</div>
             <div class="nav-tab" id="tabStats" onclick="switchView('stats')"><i class="fa-solid fa-chart-line"></i> 통계</div>
             <div class="nav-tab" id="tabOverall" onclick="switchView('overall')"><i class="fa-solid fa-layer-group"></i> 전체</div>
         </nav>
-
+ 
         <main style="padding: 0; overflow: hidden;">
             <!-- Record View -->
             <div id="recordView" class="view-container active">
@@ -864,19 +896,19 @@
                     <div class="section-title"><i class="fa-regular fa-clock"></i> 날짜 선택</div>
                     <input type="date" id="dateInput">
                 </div>
-
+ 
                 <div class="card">
                     <div class="section-title"><i class="fa-regular fa-face-smile"></i> 오늘의 기분</div>
                     <div class="chip-grid" id="moodContainer"></div>
                     <input type="text" id="moodDetail" placeholder="기분을 자세히 설명해주세요 (선택)">
                 </div>
-
+ 
                 <div class="card">
                     <div class="section-title"><i class="fa-solid fa-heart-pulse"></i> 몸 컨디션</div>
                     <div class="chip-grid" id="conditionContainer"></div>
                     <input type="text" id="conditionDetail" placeholder="몸 상태를 자세히 설명해주세요 (선택)">
                 </div>
-
+ 
                 <div class="card">
                     <div class="section-title"><i class="fa-solid fa-check-double"></i> 습관 체크</div>
                     
@@ -889,7 +921,7 @@
                             <div class="chip-grid" id="prayerContainer" style="grid-template-columns: repeat(3, 1fr);"></div>
                         </div>
                     </div>
-
+ 
                     <div class="habit-block">
                         <div class="habit-header" id="header-exercise">
                             <div class="habit-label"><span class="habit-icon">💪</span> 운동 기록</div>
@@ -900,7 +932,7 @@
                             <button class="btn-add" onclick="addExerciseBlock()">+ 라운드(세트 그룹) 추가</button>
                         </div>
                     </div>
-
+ 
                     <div class="habit-block">
                         <div class="habit-header" id="header-english">
                             <div class="habit-label"><span class="habit-icon">📚</span> 영어 공부</div>
@@ -912,14 +944,14 @@
                         </div>
                     </div>
                 </div>
-
+ 
                 <div class="card">
                     <div class="section-title"><i class="fa-regular fa-comment-dots"></i> 오늘의 한마디</div>
                     <textarea id="reflectionInput" placeholder="오늘 하루 느낀 점, 감사한 점, 반성할 점 등을 자유롭게 적어주세요."></textarea>
                 </div>
-
+ 
                 <button class="btn-save" id="saveBtn">기록 저장하기</button>
-
+ 
                 <!-- Search & History -->
                 <div class="history-section">
                     <div class="card" style="margin-bottom: 15px; padding: 15px;">
@@ -933,7 +965,7 @@
                             <button class="btn-small btn-secondary" id="searchResetBtn">초기화</button>
                         </div>
                     </div>
-
+ 
                     <div class="section-title" style="padding: 0 5px;">
                         <i class="fa-solid fa-clock-rotate-left"></i> 지난 기록
                     </div>
@@ -941,7 +973,7 @@
                     <button id="showMoreBtn" class="btn-show-more" style="display:none;">더보기 (전체 기록 표시)</button>
                 </div>
             </div>
-
+ 
             <!-- Stats View -->
             <div id="statsView" class="view-container">
                 <div class="stats-summary-card">
@@ -954,7 +986,7 @@
                         <div class="label">현재 연속</div>
                     </div>
                 </div>
-
+ 
                 <div class="card">
                     <div class="section-title"><i class="fa-solid fa-calendar-days"></i> 기록 캘린더</div>
                     <div class="calendar-header" style="margin-bottom: 10px;">
@@ -967,18 +999,18 @@
                         날짜를 클릭하면 요약을 볼 수 있습니다.
                     </div>
                 </div>
-
+ 
                 <div class="card">
                     <div class="section-title"><i class="fa-solid fa-chart-bar"></i> 기분 분포</div>
                     <div id="moodChart" class="chart-container"></div>
                 </div>
-
+ 
                 <div class="card">
                     <div class="section-title"><i class="fa-solid fa-chart-bar"></i> 컨디션 분포</div>
                     <div id="conditionChart" class="chart-container"></div>
                 </div>
             </div>
-
+ 
             <!-- Overall View -->
             <div id="overallView" class="view-container">
                 <div class="card">
@@ -988,11 +1020,11 @@
                         <span class="current-year-label" id="overallCurrentYear">2024년</span>
                         <button class="year-btn" onclick="changeOverallYear(1)"><i class="fa-solid fa-chevron-right"></i></button>
                     </div>
-                    <div class="waffle-grid-wrapper" id="monthlyTrendChart"></div>
+                    <div class="stack-chart-wrapper" id="monthlyTrendChart"></div>
                     <div id="monthDetailContainer"></div>
-                    <div class="trend-legend" id="moodLegend"></div>
+                    <div class="group-legend" id="moodLegend"></div>
                 </div>
-
+ 
                 <div class="card">
                     <div class="section-title"><i class="fa-solid fa-chart-pie"></i> 연도별 기록 요약</div>
                     <div id="overallYearStats" class="dynamic-list"></div>
@@ -1002,7 +1034,7 @@
                     <div class="section-title"><i class="fa-solid fa-chart-column"></i> 기분 누적 분포 (전체)</div>
                     <div id="overallMoodChart" class="chart-container"></div>
                 </div>
-
+ 
                 <div class="card">
                     <div class="section-title"><i class="fa-solid fa-chart-column"></i> 컨디션 누적 분포 (전체)</div>
                     <div id="overallConditionChart" class="chart-container"></div>
@@ -1010,7 +1042,7 @@
             </div>
         </main>
     </div>
-
+ 
     <!-- Export Modal -->
     <div class="modal-overlay" id="exportModal">
         <div class="modal">
@@ -1023,7 +1055,7 @@
             <button class="btn-save" id="realCopyBtn">📋 클립보드에 복사하기</button>
         </div>
     </div>
-
+ 
     <!-- Import Modal -->
     <div class="modal-overlay" id="importModal">
         <div class="modal">
@@ -1036,9 +1068,9 @@
             <button class="btn-save" id="realImportBtn" style="background-color: var(--success);">📥 데이터 가져오기</button>
         </div>
     </div>
-
+ 
     <div class="toast" id="toast">메시지</div>
-
+ 
     <script>
         // --- Configuration & Data ---
         const MOODS = [
@@ -1083,7 +1115,7 @@
         ];
         const ENGLISH_TYPES = ["쉐도잉/스피킹", "리스닝/듣기", "단어/어휘", "독해/원서", "문법/작문", "화상영어", "미드/영화", "기타"];
         const EXERCISE_NAMES = ["스쿼트", "데드리프트", "벤치프레스", "오버헤드프레스", "풀업/턱걸이", "패러럴풀업", "푸쉬업", "딥스", "런닝/조깅", "사이클", "플랭크", "덤벨컬", "바벨컬", "레그프레스", "래트풀다운", "기타"];
-
+ 
         const SET_OPTIONS = [...Array.from({length:10}, (_,i)=>`${i+1}세트`), "15세트", "20세트"];
         const REST_OPTIONS = ["휴식 없음", "30초", "1분", "1분 30초", "2분", "2분 30초", "3분", "5분"];
         const WEIGHT_OPTIONS = ["맨몸", ...Array.from({length: 300}, (_, i) => {
@@ -1092,7 +1124,7 @@
         })];
         const REP_OPTIONS = [...Array.from({length:15},(_,i)=>`${i+1}회`), "20회", "25회", "30회", "실패지점까지"];
         const DURATION_OPTIONS = ["10분", "20분", "30분", "40분", "50분", "60분", "90분", "120분"];
-
+ 
         // --- State ---
         let selectedMoods = new Set(['peace']);
         let selectedConditions = new Set(['normal']);
@@ -1105,7 +1137,7 @@
         let selectedOverallYear = new Date().getFullYear();
         let selectedPrayerTargets = new Set();
         let selectedMonthDetail = null; // 월별 상세 패널 표시용
-
+ 
         const MOOD_COLORS = {
             ecstatic: '#FF1493',  // 매우 기쁨
             joy: '#FFD700',       // 기쁨
@@ -1121,7 +1153,30 @@
             stressed: '#8B0000',  // 스트레스
             tired: '#4B0082'      // 피곤
         };
-
+ 
+        // 감정 3그룹 분류 (긍정/중립/부정)
+        const MOOD_GROUP = {
+            ecstatic: 'positive',
+            joy: 'positive',
+            happy: 'positive',
+            grateful: 'positive',
+            peace: 'positive',
+            normal: 'neutral',
+            bored: 'neutral',
+            tired: 'neutral',
+            anxious: 'negative',
+            sad: 'negative',
+            lonely: 'negative',
+            angry: 'negative',
+            stressed: 'negative'
+        };
+ 
+        const GROUP_INFO = {
+            positive: { label: '긍정', color: '#10b981', icon: '🟢' },
+            neutral:  { label: '중립', color: '#fbbf24', icon: '🟡' },
+            negative: { label: '부정', color: '#ef4444', icon: '🔴' }
+        };
+ 
         // --- Init ---
         document.addEventListener('DOMContentLoaded', () => {
             initDB();
@@ -1133,7 +1188,7 @@
             setupHabitToggle('prayer', () => {});
             setupHabitToggle('exercise', addExerciseBlock);
             setupHabitToggle('english', addEnglishRow);
-
+ 
             // Main Actions
             document.getElementById('saveBtn').addEventListener('click', saveRecord);
             
@@ -1143,32 +1198,32 @@
             document.getElementById('searchInput').addEventListener('keyup', (e) => {
                 if (e.key === 'Enter') performSearch();
             });
-
+ 
             document.getElementById('showMoreBtn').addEventListener('click', () => {
                 showAllHistory = true;
                 renderHistoryList();
             });
-
+ 
             // Import/Export Actions
             document.getElementById('exportBtn').addEventListener('click', openExportModal);
             document.getElementById('closeExportModal').addEventListener('click', () => toggleModal('exportModal', false));
             document.getElementById('realCopyBtn').addEventListener('click', executeCopy);
-
+ 
             document.getElementById('importBtn').addEventListener('click', () => toggleModal('importModal', true));
             document.getElementById('closeImportModal').addEventListener('click', () => toggleModal('importModal', false));
             document.getElementById('realImportBtn').addEventListener('click', executeImport);
         });
-
+ 
         function initDate() {
             document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
         }
-
+ 
         function toggleModal(id, show) {
             const el = document.getElementById(id);
             if(show) el.classList.add('open');
             else el.classList.remove('open');
         }
-
+ 
         // --- UI Rendering ---
         function renderMultiSelectChips(containerId, items, selectedSet) {
             const container = document.getElementById(containerId);
@@ -1190,13 +1245,13 @@
                 container.appendChild(el);
             });
         }
-
+ 
         function setupHabitToggle(key, addFn) {
             const header = document.getElementById(`header-${key}`);
             const toggle = document.getElementById(`toggle-${key}`);
             const sub = document.getElementById(`sub-${key}`);
             const list = document.getElementById(`${key}List`);
-
+ 
             header.addEventListener('click', () => {
                 toggle.classList.toggle('active');
                 sub.classList.toggle('open');
@@ -1205,7 +1260,7 @@
                 }
             });
         }
-
+ 
         // --- Dynamic Rows ---
         function addPrayerRow() {
             const list = document.getElementById('prayerList');
@@ -1217,7 +1272,7 @@
             `;
             list.appendChild(row);
         }
-
+ 
         function addEnglishRow() {
             const list = document.getElementById('englishList');
             const row = document.createElement('div');
@@ -1245,7 +1300,7 @@
             `;
             list.appendChild(row);
         }
-
+ 
         function addExerciseBlock() {
             const list = document.getElementById('exerciseList');
             const blockCount = list.querySelectorAll('.exercise-block').length + 1;
@@ -1282,7 +1337,7 @@
             list.appendChild(block);
             addExerciseFieldToBlock(block.querySelector('.btn-add-sub'));
         }
-
+ 
         function addExerciseFieldToBlock(btn) {
             const container = btn.previousElementSibling;
             const item = document.createElement('div');
@@ -1292,7 +1347,7 @@
             const weightOpts = WEIGHT_OPTIONS.map(w => `<option value="${w}">${w}</option>`).join('');
             const repOpts = REP_OPTIONS.map(r => `<option value="${r}">${r}</option>`).join('');
             const durationOpts = DURATION_OPTIONS.map(d => `<option value="${d}">${d}</option>`).join('');
-
+ 
             item.innerHTML = `
                 <div style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
                     <select class="sub-ex-name" style="flex:1; font-weight:700; border:none; background:transparent;">${nameOpts}</select>
@@ -1321,10 +1376,10 @@
                 item.querySelector('.sub-rep-box').style.display = isRunning ? 'none' : 'block';
                 item.querySelector('.sub-dur-box').style.display = isRunning ? 'block' : 'none';
             });
-
+ 
             container.appendChild(item);
         }
-
+ 
         function removeExerciseField(btn) {
             const container = btn.closest('.exercises-container');
             if (container.children.length > 1) {
@@ -1333,7 +1388,7 @@
                 showToast("최소 하나의 운동은 있어야 합니다.");
             }
         }
-
+ 
         // --- IndexedDB Logic ---
         function initDB() {
             const request = indexedDB.open('EverydayCheckupDB_V2', 1);
@@ -1349,19 +1404,19 @@
                 loadRecords();
             };
         }
-
+ 
         function saveRecord() {
             const date = document.getElementById('dateInput').value;
             if(!date) return showToast("날짜를 선택해주세요.");
-
+ 
             const moodDetail = document.getElementById('moodDetail').value;
             const condDetail = document.getElementById('conditionDetail').value;
             const reflection = document.getElementById('reflectionInput').value;
-
+ 
             // Gather Habits
             const prayerActive = document.getElementById('toggle-prayer').classList.contains('active');
             const prayerTargets = prayerActive ? Array.from(selectedPrayerTargets) : [];
-
+ 
             const englishActive = document.getElementById('toggle-english').classList.contains('active');
             const englishList = [];
             if(englishActive) {
@@ -1372,7 +1427,7 @@
                     englishList.push({ type, duration, count });
                 });
             }
-
+ 
             const exerciseActive = document.getElementById('toggle-exercise').classList.contains('active');
             const exerciseList = [];
             if(exerciseActive) {
@@ -1394,7 +1449,7 @@
                     exerciseList.push(blockData);
                 });
             }
-
+ 
             const record = {
                 date,
                 timestamp: Date.now(),
@@ -1407,7 +1462,7 @@
                 },
                 reflection
             };
-
+ 
             const tx = db.transaction(['entries'], 'readwrite');
             tx.objectStore('entries').add(record).onsuccess = () => {
                 showToast("✅ 저장 완료!");
@@ -1415,7 +1470,7 @@
                 loadRecords();
             };
         }
-
+ 
         function loadRecords() {
             const tx = db.transaction(['entries'], 'readonly');
             tx.objectStore('entries').getAll().onsuccess = (e) => {
@@ -1425,7 +1480,7 @@
                 if (currentView === 'overall') renderOverallStats();
             };
         }
-
+ 
         // --- View Switching ---
         function switchView(view) {
             currentView = view;
@@ -1445,11 +1500,11 @@
                 renderOverallStats();
             }
         }
-
+ 
         // --- Statistics Rendering ---
         function renderStats() {
             if (allRecordsCache.length === 0) return;
-
+ 
             document.getElementById('statTotalDays').innerText = allRecordsCache.length;
             
             let streak = 0;
@@ -1469,16 +1524,16 @@
                 }
             }
             document.getElementById('statStreak').innerText = streak;
-
+ 
             renderStatsCalendar();
-
+ 
             const targetYear = statsCalendarDate.getFullYear();
             const targetMonth = statsCalendarDate.getMonth();
             const monthlyData = allRecordsCache.filter(r => {
                 const d = new Date(r.date);
                 return d.getFullYear() === targetYear && d.getMonth() === targetMonth;
             });
-
+ 
             const moodCounts = {};
             MOODS.forEach(m => moodCounts[m.id] = 0);
             monthlyData.forEach(r => { 
@@ -1486,7 +1541,7 @@
                 vals.forEach(vid => { if(moodCounts[vid] !== undefined) moodCounts[vid]++; });
             });
             renderBarChart('moodChart', MOODS, moodCounts);
-
+ 
             const condCounts = {};
             CONDITIONS.forEach(c => condCounts[c.id] = 0);
             monthlyData.forEach(r => { 
@@ -1495,122 +1550,93 @@
             });
             renderBarChart('conditionChart', CONDITIONS, condCounts);
         }
-
-        // 🌟 NEW: 3행 x 4열 그리드 와플 차트
+ 
+        // 🌟 NEW: 스택 막대 차트 (긍정/중립/부정 3그룹)
         function renderOverallStats() {
             document.getElementById('overallCurrentYear').innerText = `${selectedOverallYear}년`;
-
+ 
             const trendContainer = document.getElementById('monthlyTrendChart');
             trendContainer.innerHTML = '';
-
+ 
             const months = Array.from({length: 12}, (_, i) => i + 1);
-
+ 
             months.forEach(m => {
                 const monthData = allRecordsCache.filter(r => {
                     const d = new Date(r.date);
                     return d.getFullYear() === selectedOverallYear && (d.getMonth() + 1) === m;
                 });
-
+ 
                 const totalMonthEntries = monthData.length;
-                const monthlyMoodCounts = {};
-
+ 
+                // 3그룹별 카운트
+                const groupCounts = { positive: 0, neutral: 0, negative: 0 };
+                let totalMoodOccurrences = 0;
+ 
                 monthData.forEach(r => {
                     const vals = r.mood.values || (r.mood.value ? [r.mood.value] : []);
                     vals.forEach(vid => {
-                        if (MOODS.some(mx => mx.id === vid)) {
-                            monthlyMoodCounts[vid] = (monthlyMoodCounts[vid] || 0) + 1;
+                        const group = MOOD_GROUP[vid];
+                        if (group) {
+                            groupCounts[group]++;
+                            totalMoodOccurrences++;
                         }
                     });
                 });
-
-                // 와플 셀 35칸 (5x7) - 한달 최대 31일 + 여유 4칸
-                const maxSquares = 35;
-                let totalMoodOccurrences = Object.values(monthlyMoodCounts).reduce((a, b) => a + b, 0);
-                let squareColors = [];
-
-                if (totalMoodOccurrences > 0) {
-                    let squaresToFill = Math.min(totalMonthEntries, 31);
-                    let moodAllocations = Object.entries(monthlyMoodCounts).map(([id, count]) => {
-                        const rawSquares = (count / totalMoodOccurrences) * squaresToFill;
-                        return { id, rawSquares, intSquares: Math.floor(rawSquares), remainder: rawSquares - Math.floor(rawSquares) };
+ 
+                const row = document.createElement('div');
+                row.dataset.month = m;
+ 
+                if (totalMonthEntries === 0 || totalMoodOccurrences === 0) {
+                    row.className = 'stack-bar-row empty';
+                    row.innerHTML = `
+                        <div class="stack-month-label">${m}월</div>
+                        <div class="stack-empty-text">기록 없음</div>
+                        <div class="stack-bar-count">-</div>
+                    `;
+                } else {
+                    const isSelected = selectedMonthDetail === m;
+                    row.className = `stack-bar-row ${isSelected ? 'selected' : ''}`;
+ 
+                    const posPct = (groupCounts.positive / totalMoodOccurrences) * 100;
+                    const neuPct = (groupCounts.neutral / totalMoodOccurrences) * 100;
+                    const negPct = (groupCounts.negative / totalMoodOccurrences) * 100;
+ 
+                    // 5% 이상만 숫자 표시
+                    const showPosNum = posPct >= 12;
+                    const showNeuNum = neuPct >= 12;
+                    const showNegNum = negPct >= 12;
+ 
+                    row.innerHTML = `
+                        <div class="stack-month-label">${m}월</div>
+                        <div class="stack-bar-bg">
+                            ${groupCounts.positive > 0 ? `<div class="stack-segment positive" style="width: ${posPct}%">${showPosNum ? groupCounts.positive : ''}</div>` : ''}
+                            ${groupCounts.neutral > 0 ? `<div class="stack-segment neutral" style="width: ${neuPct}%">${showNeuNum ? groupCounts.neutral : ''}</div>` : ''}
+                            ${groupCounts.negative > 0 ? `<div class="stack-segment negative" style="width: ${negPct}%">${showNegNum ? groupCounts.negative : ''}</div>` : ''}
+                        </div>
+                        <div class="stack-bar-count">${totalMonthEntries}일</div>
+                    `;
+ 
+                    row.addEventListener('click', () => {
+                        selectedMonthDetail = (selectedMonthDetail === m) ? null : m;
+                        renderOverallStats();
                     });
-
-                    let filled = moodAllocations.reduce((acc, curr) => acc + curr.intSquares, 0);
-                    moodAllocations.sort((a, b) => b.remainder - a.remainder);
-
-                    while(filled < squaresToFill && moodAllocations.length > 0) {
-                        for(let i=0; i<moodAllocations.length && filled < squaresToFill; i++) {
-                            moodAllocations[i].intSquares++;
-                            filled++;
-                        }
-                    }
-
-                    moodAllocations.forEach(alloc => {
-                        for(let i=0; i<alloc.intSquares; i++) {
-                            squareColors.push(MOOD_COLORS[alloc.id] || '#ccc');
-                        }
-                    });
-                } else if (totalMonthEntries > 0) {
-                    for(let i=0; i<totalMonthEntries; i++) squareColors.push('#ddd');
                 }
-
-                while(squareColors.length < maxSquares) {
-                    squareColors.push('empty');
-                }
-
-                squareColors.reverse();
-
-                const squaresHtml = squareColors.map(color => {
-                    if(color === 'empty') return `<div class="waffle-cell empty"></div>`;
-                    return `<div class="waffle-cell" style="background-color: ${color};"></div>`;
-                }).join('');
-
-                // 1위 기분 이모지 찾기
-                let topMoodEmoji = '';
-                if (Object.keys(monthlyMoodCounts).length > 0) {
-                    const topMoodId = Object.entries(monthlyMoodCounts)
-                        .sort((a, b) => b[1] - a[1])[0][0];
-                    const topMood = MOODS.find(mx => mx.id === topMoodId);
-                    if (topMood) topMoodEmoji = topMood.icon;
-                }
-
-                const card = document.createElement('div');
-                card.className = `month-card ${totalMonthEntries === 0 ? 'empty' : ''} ${selectedMonthDetail === m ? 'selected' : ''}`;
-                card.dataset.month = m;
-
-                card.innerHTML = `
-                    <div class="month-card-header">
-                        <span class="month-label">${m}월</span>
-                        ${topMoodEmoji ? `<span class="month-top-emoji">${topMoodEmoji}</span>` : ''}
-                    </div>
-                    <div class="month-waffle">${squaresHtml}</div>
-                    <div class="month-card-footer">${totalMonthEntries}일</div>
-                `;
-
-                card.addEventListener('click', () => {
-                    if (totalMonthEntries === 0) {
-                        showToast(`${m}월에는 기록이 없어`);
-                        return;
-                    }
-                    selectedMonthDetail = (selectedMonthDetail === m) ? null : m;
-                    renderOverallStats();
-                });
-
-                trendContainer.appendChild(card);
+ 
+                trendContainer.appendChild(row);
             });
-
+ 
             // 상세 패널 렌더링
             renderMonthDetailPanel();
-
-            // Legend
+ 
+            // 3그룹 범례
             const legendContainer = document.getElementById('moodLegend');
-            legendContainer.innerHTML = MOODS.map(m => `
-                <div class="legend-item">
-                    <div class="legend-color" style="background-color: ${MOOD_COLORS[m.id]}"></div>
-                    <span>${m.label}</span>
+            legendContainer.innerHTML = Object.entries(GROUP_INFO).map(([key, info]) => `
+                <div class="group-legend-item">
+                    <div class="group-legend-color" style="background-color: ${info.color}"></div>
+                    <span>${info.label}</span>
                 </div>
             `).join('');
-
+ 
             // Year Summary
             const years = [...new Set(allRecordsCache.map(r => new Date(r.date).getFullYear()))].sort((a,b) => b-a);
             const yearListContainer = document.getElementById('overallYearStats');
@@ -1627,7 +1653,7 @@
                     `;
                 }).join('');
             }
-
+ 
             // Overall Distribution Charts
             const moodCounts = {};
             MOODS.forEach(m => moodCounts[m.id] = 0);
@@ -1636,7 +1662,7 @@
                 vals.forEach(vid => { if(moodCounts[vid] !== undefined) moodCounts[vid]++; });
             });
             renderBarChart('overallMoodChart', MOODS, moodCounts);
-
+ 
             const condCounts = {};
             CONDITIONS.forEach(c => condCounts[c.id] = 0);
             allRecordsCache.forEach(r => { 
@@ -1645,21 +1671,21 @@
             });
             renderBarChart('overallConditionChart', CONDITIONS, condCounts);
         }
-
-        // 월별 상세 패널 렌더링 (탭 시 표시)
+ 
+        // 월별 상세 패널 (탭 시 표시) - 13개 세부 감정 분포
         function renderMonthDetailPanel() {
             const container = document.getElementById('monthDetailContainer');
             if (selectedMonthDetail === null) {
                 container.innerHTML = '';
                 return;
             }
-
+ 
             const m = selectedMonthDetail;
             const monthData = allRecordsCache.filter(r => {
                 const d = new Date(r.date);
                 return d.getFullYear() === selectedOverallYear && (d.getMonth() + 1) === m;
             });
-
+ 
             const monthlyMoodCounts = {};
             monthData.forEach(r => {
                 const vals = r.mood.values || (r.mood.value ? [r.mood.value] : []);
@@ -1669,27 +1695,45 @@
                     }
                 });
             });
-
-            const sortedMoods = Object.entries(monthlyMoodCounts)
-                .sort((a, b) => b[1] - a[1]);
-
+ 
+            // 그룹별로 묶어서 정렬
+            const grouped = { positive: [], neutral: [], negative: [] };
+            Object.entries(monthlyMoodCounts).forEach(([id, count]) => {
+                const group = MOOD_GROUP[id];
+                if (group) grouped[group].push({ id, count });
+            });
+            Object.keys(grouped).forEach(g => {
+                grouped[g].sort((a, b) => b.count - a.count);
+            });
+ 
             let listHtml = '';
-            if (sortedMoods.length === 0) {
+            if (Object.values(grouped).every(arr => arr.length === 0)) {
                 listHtml = '<div class="month-detail-empty">기분 기록이 없어</div>';
             } else {
-                listHtml = sortedMoods.map(([id, count]) => {
-                    const mood = MOODS.find(mx => mx.id === id);
-                    if (!mood) return '';
-                    return `
-                        <div class="month-detail-row">
-                            <div class="month-detail-color" style="background-color: ${MOOD_COLORS[id]}"></div>
-                            <span class="month-detail-label">${mood.icon} ${mood.label}</span>
-                            <span class="month-detail-count">${count}회</span>
+                ['positive', 'neutral', 'negative'].forEach(g => {
+                    if (grouped[g].length === 0) return;
+                    const groupTotal = grouped[g].reduce((sum, x) => sum + x.count, 0);
+                    listHtml += `
+                        <div style="margin-top:8px; padding-top:8px; border-top:1px solid #f1f5f9;">
+                            <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px; font-size:0.8rem; font-weight:700; color:${GROUP_INFO[g].color};">
+                                <div class="group-legend-color" style="background-color:${GROUP_INFO[g].color}"></div>
+                                ${GROUP_INFO[g].label} (${groupTotal}회)
+                            </div>
+                            ${grouped[g].map(({id, count}) => {
+                                const mood = MOODS.find(mx => mx.id === id);
+                                if (!mood) return '';
+                                return `
+                                    <div class="month-detail-row" style="padding-left:20px;">
+                                        <span class="month-detail-label">${mood.icon} ${mood.label}</span>
+                                        <span class="month-detail-count">${count}회</span>
+                                    </div>
+                                `;
+                            }).join('')}
                         </div>
                     `;
-                }).join('');
+                });
             }
-
+ 
             container.innerHTML = `
                 <div class="month-detail-panel">
                     <div class="month-detail-title">
@@ -1700,23 +1744,23 @@
                 </div>
             `;
         }
-
+ 
         function closeMonthDetail() {
             selectedMonthDetail = null;
             renderOverallStats();
         }
-
+ 
         function changeOverallYear(delta) {
             selectedOverallYear += delta;
             selectedMonthDetail = null;
             renderOverallStats();
         }
-
+ 
         function changeStatsMonth(delta) {
             statsCalendarDate.setMonth(statsCalendarDate.getMonth() + delta);
             renderStats();
         }
-
+ 
         function renderStatsCalendar() {
             const grid = document.getElementById('statsCalendarGrid');
             const title = document.getElementById('statsCalendarTitle');
@@ -1725,18 +1769,18 @@
             
             title.innerText = `${year}년 ${month + 1}월`;
             grid.innerHTML = '';
-
+ 
             const days = ['일', '월', '화', '수', '목', '금', '토'];
             days.forEach(d => grid.innerHTML += `<div class="mini-day" style="font-weight:bold; color:var(--text-sub)">${d}</div>`);
-
+ 
             const firstDay = new Date(year, month, 1).getDay();
             const lastDate = new Date(year, month + 1, 0).getDate();
-
+ 
             for (let i = 0; i < firstDay; i++) grid.innerHTML += `<div class="mini-day"></div>`;
-
+ 
             const recordMap = {};
             allRecordsCache.forEach(r => recordMap[r.date] = r);
-
+ 
             for (let i = 1; i <= lastDate; i++) {
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
                 const record = recordMap[dateStr];
@@ -1750,13 +1794,13 @@
                             const m = MOODS.find(mx => mx.id === vid);
                             return m ? `${m.icon} ${m.label}` : '';
                         }).filter(x => x).join(' ');
-
+ 
                         const valsC = record.condition.values || (record.condition.value ? [record.condition.value] : []);
                         const condStrs = valsC.map(vid => {
                             const c = CONDITIONS.find(cx => cx.id === vid);
                             return c ? `${c.icon} ${c.label}` : '';
                         }).filter(x => x).join(' ');
-
+ 
                         document.getElementById('statsDaySummary').innerHTML = `
                             <strong>${dateStr} 요약</strong><br>
                             기분: ${moodStrs} | 컨디션: ${condStrs}<br>
@@ -1767,12 +1811,12 @@
                 grid.appendChild(dayEl);
             }
         }
-
+ 
         function renderBarChart(containerId, items, counts) {
             const container = document.getElementById(containerId);
             container.innerHTML = '';
             const max = Math.max(...Object.values(counts), 1);
-
+ 
             items.forEach(item => {
                 const count = counts[item.id] || 0;
                 const percent = (count / max) * 100;
@@ -1789,7 +1833,7 @@
                 setTimeout(() => row.querySelector('.chart-bar-fill').style.width = `${percent}%`, 100);
             });
         }
-
+ 
         function deleteRecord(id) {
             if(!confirm("이 기록을 정말 삭제하시겠습니까?")) return;
             const tx = db.transaction(['entries'], 'readwrite');
@@ -1798,7 +1842,7 @@
                 loadRecords();
             };
         }
-
+ 
         // --- Search & Filtering ---
         function performSearch() {
             const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
@@ -1809,7 +1853,7 @@
             isSearching = true;
             renderHistoryList(keyword, dateFilter);
         }
-
+ 
         function resetSearch() {
             document.getElementById('searchInput').value = '';
             document.getElementById('historyDateFilter').value = '';
@@ -1817,11 +1861,11 @@
             showAllHistory = false;
             renderHistoryList();
         }
-
+ 
         function renderHistoryList(keyword = '', dateFilter = '') {
             const container = document.getElementById('historyList');
             const btnMore = document.getElementById('showMoreBtn');
-
+ 
             let displayList = allRecordsCache;
             
             if(isSearching) {
@@ -1832,7 +1876,7 @@
                             if(typeof ei === 'string') return ei;
                             return `${ei.type} ${ei.duration} ${ei.count}`;
                         }).join(' ');
-
+ 
                         const searchableText = [
                             r.date,
                             r.mood.detail || '',
@@ -1851,10 +1895,10 @@
                     return match;
                 });
             }
-
+ 
             const totalCount = displayList.length;
             let visibleList = displayList;
-
+ 
             if(!isSearching && !showAllHistory) {
                 visibleList = displayList.slice(0, 5);
                 btnMore.style.display = (totalCount > 5) ? 'block' : 'none';
@@ -1862,19 +1906,19 @@
             } else {
                 btnMore.style.display = 'none';
             }
-
+ 
             if(visibleList.length === 0) {
                 container.innerHTML = `<div style="text-align:center; color:#9ca3af; padding:30px;">${isSearching ? '검색 결과가 없습니다.' : '기록이 없습니다.'}</div>`;
                 return;
             }
-
+ 
             container.innerHTML = visibleList.map(r => {
                 const moodVals = r.mood?.values || (r.mood?.value ? [r.mood.value] : []);
                 const moodIcons = moodVals.map(vid => {
                     const found = MOODS.find(m => m.id === vid);
                     return found ? `${found.icon} ${found.label}` : '';
                 }).filter(v => v).join(', ');
-
+ 
                 const condVals = r.condition?.values || (r.condition?.value ? [r.condition.value] : []);
                 const condIcons = condVals.map(vid => {
                     const found = CONDITIONS.find(c => c.id === vid);
@@ -1911,7 +1955,7 @@
                         exerciseStr = '완료';
                     }
                 }
-
+ 
                 return `
                     <div class="history-card">
                         <button class="btn-delete" onclick="deleteRecord(${r.id})"><i class="fa-solid fa-trash"></i></button>
@@ -1931,13 +1975,13 @@
                             <div class="h-row"><i class="fa-solid fa-dumbbell"></i> 운동: ${exerciseStr}</div>
                             <div class="h-row"><i class="fa-solid fa-book"></i> 영어: ${englishStr}</div>
                         </div>
-
+ 
                         ${r.reflection ? `<div class="h-detail-text" style="margin-left:0; background:#f9fafb; padding:8px; border-radius:8px;">${r.reflection}</div>` : ''}
                     </div>
                 `;
             }).join('');
         }
-
+ 
         function resetForm() {
             document.getElementById('moodDetail').value = '';
             document.getElementById('conditionDetail').value = '';
@@ -1950,10 +1994,10 @@
             selectedConditions.clear();
             selectedConditions.add('normal');
             renderMultiSelectChips('conditionContainer', CONDITIONS, selectedConditions);
-
+ 
             selectedPrayerTargets.clear();
             renderMultiSelectChips('prayerContainer', PRAYER_TARGETS, selectedPrayerTargets);
-
+ 
             ['prayer', 'english', 'exercise'].forEach(key => {
                 const toggle = document.getElementById(`toggle-${key}`);
                 const sub = document.getElementById(`sub-${key}`);
@@ -1962,17 +2006,17 @@
                 const list = document.getElementById(`${key}List`);
                 if(list) list.innerHTML = '';
             });
-
+ 
             window.scrollTo({top:0, behavior:'smooth'});
         }
-
+ 
         function showToast(msg) {
             const toast = document.getElementById('toast');
             toast.innerText = msg;
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 2000);
         }
-
+ 
         // --- Export / Import Functions ---
         function openExportModal() {
             if(allRecordsCache.length === 0) return showToast("백업할 데이터가 없습니다.");
@@ -1980,7 +2024,7 @@
             document.getElementById('exportText').value = data;
             toggleModal('exportModal', true);
         }
-
+ 
         function executeCopy() {
             const textArea = document.getElementById('exportText');
             textArea.select();
@@ -1997,7 +2041,7 @@
                 fallbackCopy(textArea);
             }
         }
-
+ 
         function fallbackCopy(textArea) {
             try {
                 document.execCommand('copy');
@@ -2007,27 +2051,27 @@
                 showToast("복사 실패. 텍스트를 직접 복사해주세요.");
             }
         }
-
+ 
         function executeImport() {
             const jsonStr = document.getElementById('importText').value;
             if(!jsonStr) return showToast("데이터를 붙여넣어 주세요.");
-
+ 
             try {
                 const data = JSON.parse(jsonStr);
                 if(!Array.isArray(data)) throw new Error("데이터 형식이 올바르지 않습니다.");
-
+ 
                 if(!confirm(`총 ${data.length}개의 데이터를 복구(추가)하시겠습니까?`)) return;
-
+ 
                 const tx = db.transaction(['entries'], 'readwrite');
                 const store = tx.objectStore('entries');
-
+ 
                 let count = 0;
                 data.forEach(item => {
                     delete item.id; 
                     store.add(item);
                     count++;
                 });
-
+ 
                 tx.oncomplete = () => {
                     showToast(`✅ ${count}개 데이터 복구 완료!`);
                     document.getElementById('importText').value = '';
@@ -2035,7 +2079,7 @@
                     loadRecords();
                 };
                 tx.onerror = () => showToast("❌ 데이터 저장 중 오류 발생");
-
+ 
             } catch (e) {
                 showToast("❌ 잘못된 JSON 형식입니다.");
             }
@@ -2044,3 +2088,4 @@
 <script type="module" src="/index.tsx"></script>
 </body>
 </html>
+ 
