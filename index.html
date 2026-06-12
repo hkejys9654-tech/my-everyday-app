@@ -9,7 +9,7 @@
     <!-- PWA Settings -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#ef4444">
+    <meta name="theme-color" content="#1f3b63">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2965/2965300.png">
     
     <!-- Fonts & Icons -->
@@ -20,17 +20,18 @@
  
     <style>
         :root {
-            --primary: #ef4444;
-            --primary-light: #fee2e2;
-            --primary-dark: #dc2626;
-            --text-main: #1f2937;
-            --text-sub: #6b7280;
-            --bg: #f3f4f6;
+            --primary: #1f3b63;
+            --primary-light: #eaf1f8;
+            --primary-dark: #132742;
+            --primary-soft: #6c86a8;
+            --text-main: #162338;
+            --text-sub: #64748b;
+            --bg: #edf3f8;
             --card-bg: #ffffff;
-            --border: #e5e7eb;
-            --danger: #ef4444;
-            --danger-bg: #fee2e2;
-            --success: #10b981;
+            --border: #d7e1ec;
+            --danger: #e25c5c;
+            --danger-bg: #fdecec;
+            --success: #1fa971;
         }
  
         * {
@@ -878,7 +879,307 @@
             transition: opacity 0.3s; z-index: 100;
         }
         .toast.show { opacity: 1; }
-    </style>
+    
+
+        /* === Navy refresh / mobile polish === */
+        body {
+            background: linear-gradient(180deg, #eaf1f8 0%, #edf3f8 35%, #f6f9fc 100%);
+        }
+
+        #app {
+            max-width: 640px;
+            background: transparent;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 70%, #35557f 100%);
+            color: #fff;
+            padding: 18px 20px;
+            box-shadow: 0 10px 30px rgba(19, 39, 66, 0.22);
+            border-bottom-left-radius: 18px;
+            border-bottom-right-radius: 18px;
+            margin: 0 0 10px 0;
+        }
+
+        h1 {
+            color: #fff;
+            font-size: 1.05rem;
+            letter-spacing: -0.02em;
+        }
+
+        .header-actions {
+            gap: 6px;
+        }
+
+        .btn-icon {
+            color: rgba(255,255,255,0.9);
+            background: rgba(255,255,255,0.12);
+        }
+        .btn-icon:hover {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+        }
+
+        .nav-tabs {
+            margin: 0 16px;
+            padding: 6px;
+            background: rgba(255,255,255,0.9);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            gap: 6px;
+            box-shadow: 0 6px 20px rgba(31, 59, 99, 0.08);
+            position: sticky;
+            top: 8px;
+            z-index: 9;
+        }
+
+        .nav-tab {
+            border-radius: 10px;
+            border-bottom: none;
+            padding: 11px 10px;
+        }
+
+        .nav-tab.active {
+            color: #fff;
+            background: linear-gradient(135deg, var(--primary) 0%, #35557f 100%);
+            box-shadow: 0 8px 16px rgba(31, 59, 99, 0.18);
+        }
+
+        main {
+            background: transparent;
+        }
+
+        .view-container {
+            padding: 16px;
+            padding-bottom: 100px;
+        }
+
+        .card {
+            border: 1px solid rgba(215, 225, 236, 0.9);
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: 0 10px 24px rgba(31, 59, 99, 0.08);
+        }
+
+        .section-title {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        input[type="date"], input[type="text"], input[type="month"], textarea, select {
+            border-radius: 12px;
+            border-color: var(--border);
+            background: #fbfdff;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--primary-soft);
+            box-shadow: 0 0 0 3px rgba(31, 59, 99, 0.12);
+        }
+
+        .chip {
+            border-radius: 14px;
+            background: #fbfdff;
+        }
+
+        .chip.selected {
+            background: var(--primary-light);
+            box-shadow: inset 0 0 0 1px rgba(31, 59, 99, 0.15);
+        }
+
+        .toggle-switch.active {
+            background-color: var(--primary);
+        }
+
+        .sub-form {
+            border-left: 3px solid rgba(31, 59, 99, 0.16);
+            padding-left: 12px;
+        }
+
+        .btn-add, .btn-add-sub {
+            border-radius: 12px;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, var(--primary) 0%, #35557f 100%);
+            box-shadow: 0 10px 20px rgba(31, 59, 99, 0.24);
+            border-radius: 14px;
+            letter-spacing: -0.01em;
+        }
+
+        .stats-summary-card {
+            background: linear-gradient(135deg, var(--primary-light) 0%, #f4f8fc 100%);
+            border: 1px solid var(--border);
+        }
+
+        .history-search-card {
+            padding: 16px;
+            background: linear-gradient(180deg, #ffffff 0%, #f9fbfe 100%);
+        }
+
+        .search-input-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f7faff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 0 14px;
+            margin-bottom: 12px;
+        }
+
+        .search-input-wrap i {
+            color: var(--primary-soft);
+            font-size: 0.95rem;
+        }
+
+        .search-input-wrap input {
+            border: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            padding-left: 0;
+        }
+
+        .filter-mode-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .filter-chip {
+            border: 1px solid var(--border);
+            background: #fff;
+            color: var(--text-sub);
+            font-size: 0.88rem;
+            font-weight: 700;
+            border-radius: 999px;
+            padding: 10px 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-chip.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+            box-shadow: 0 8px 16px rgba(31, 59, 99, 0.18);
+        }
+
+        .filter-panel {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .filter-field {
+            background: #f7faff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 12px;
+        }
+
+        .filter-field label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+
+        .filter-field input {
+            background: #fff;
+        }
+
+        .search-note {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .search-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary-solid {
+            background: var(--primary);
+            color: #fff;
+            border: 1px solid var(--primary);
+        }
+
+        .btn-primary-outline {
+            border-color: var(--primary-soft);
+            color: var(--primary);
+        }
+
+        .btn-secondary {
+            background: #eef3f8;
+            color: var(--text-main);
+        }
+
+        .history-filter-summary {
+            font-size: 0.78rem;
+            color: var(--text-sub);
+            background: #f3f7fb;
+            border-radius: 12px;
+            padding: 10px 12px;
+        }
+
+        .history-card {
+            border-left: 4px solid var(--primary);
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(31, 59, 99, 0.06);
+        }
+
+        .h-date {
+            color: var(--primary-dark);
+        }
+
+        .calendar-nav-btn:hover,
+        .year-btn:hover,
+        .btn-show-more:hover {
+            color: var(--primary);
+        }
+
+        .month-detail-panel {
+            border: 1px solid rgba(31, 59, 99, 0.18);
+            box-shadow: 0 10px 20px rgba(31, 59, 99, 0.06);
+        }
+
+        .stack-bar-row.selected {
+            background: rgba(31, 59, 99, 0.08);
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 16px 16px;
+                border-bottom-left-radius: 16px;
+                border-bottom-right-radius: 16px;
+            }
+
+            .nav-tabs {
+                margin: 0 12px;
+            }
+
+            .view-container {
+                padding: 12px;
+            }
+
+            .card {
+                padding: 16px;
+            }
+
+            .filter-chip {
+                padding: 10px 8px;
+                font-size: 0.84rem;
+            }
+        }
+
+</style>
 <link rel="stylesheet" href="/index.css">
 </head>
 <body>
@@ -966,17 +1267,35 @@
  
                 <!-- Search & History -->
                 <div class="history-section">
-                    <div class="card" style="margin-bottom: 15px; padding: 15px;">
-                        <div class="section-title" style="margin-bottom: 10px;">
+                    <div class="card history-search-card" style="margin-bottom: 15px;">
+                        <div class="section-title" style="margin-bottom: 12px;">
                             <i class="fa-solid fa-magnifying-glass"></i> 기록 검색
                         </div>
-                        <div class="search-container">
-                            <input type="text" id="searchInput" placeholder="내용 검색 (기분, 운동, 한마디 등)">
-                            <input type="month" id="historyMonthFilter" title="월별로 필터링">
-                            <input type="date" id="historyDateFilter" style="width: 45px; padding: 10px; border: 1px solid var(--primary); border-radius: 10px; background: #fff; cursor: pointer; color: transparent; position: relative;" title="날짜로 필터링">
-                            <button class="btn-small btn-primary-outline" id="searchBtn">검색</button>
+                        <div class="search-input-wrap">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="searchInput" placeholder="예: 감사, 런닝, 영어, 피곤">
+                        </div>
+                        <div class="filter-mode-row">
+                            <button type="button" class="filter-chip active" data-mode="all">전체</button>
+                            <button type="button" class="filter-chip" data-mode="month">월별</button>
+                            <button type="button" class="filter-chip" data-mode="day">일별</button>
+                        </div>
+                        <div class="filter-panel">
+                            <div class="filter-field" id="monthFilterField" style="display:none;">
+                                <label for="historyMonthFilter">월 선택</label>
+                                <input type="month" id="historyMonthFilter" title="월별로 필터링">
+                            </div>
+                            <div class="filter-field" id="dateFilterField" style="display:none;">
+                                <label for="historyDateFilter">날짜 선택</label>
+                                <input type="date" id="historyDateFilter" title="날짜로 필터링">
+                            </div>
+                        </div>
+                        <div class="search-note">키워드만 검색하거나, 월/일 조건과 함께 자연스럽게 조회할 수 있어요.</div>
+                        <div class="search-actions">
+                            <button class="btn-small btn-primary-solid" id="searchBtn">조회하기</button>
                             <button class="btn-small btn-secondary" id="searchResetBtn">초기화</button>
                         </div>
+                        <div id="historyFilterSummary" class="history-filter-summary">전체 기록을 보는 중</div>
                     </div>
  
                     <div class="section-title" style="padding: 0 5px;">
@@ -1079,6 +1398,8 @@
             <p style="font-size:0.9rem; color:#6b7280; margin-top:0;">백업해둔 데이터 텍스트를 아래에 붙여넣기 하세요. (기존 데이터에 추가됩니다)</p>
             <textarea id="importText" class="modal-textarea" placeholder='[{"date":"2024-..."}]'></textarea>
             <button class="btn-save" id="realImportBtn" style="background-color: var(--success);">📥 데이터 가져오기</button>
+            <button class="btn-save" id="dedupeBtn" style="background-color:#64748b; margin-top:10px; box-shadow:none;">🧹 중복 날짜 정리하기</button>
+            <p style="font-size:0.78rem; color:#6b7280; margin:10px 0 0; line-height:1.5;">같은 날짜 기록이 여러 개 있으면 가장 나중에 저장된 기록 1개만 남깁니다.</p>
         </div>
     </div>
  
@@ -1150,6 +1471,7 @@
         let selectedOverallYear = new Date().getFullYear();
         let selectedPrayerTargets = new Set();
         let selectedMonthDetail = null; // 월별 상세 패널 표시용
+        let historyFilterMode = 'all';
  
         const MOOD_COLORS = {
             ecstatic: '#FF1493',  // 매우 기쁨
@@ -1203,24 +1525,26 @@
             setupHabitToggle('english', addEnglishRow);
  
             // Main Actions
-            document.getElementById('saveBtn').addEventListener('click', saveRecord);
-            
-            // Search Actions
+            document.getElementById('saveBtn').addEventListener('click', saveRecord);            // Search Actions
             document.getElementById('searchBtn').addEventListener('click', performSearch);
             document.getElementById('searchResetBtn').addEventListener('click', resetSearch);
             document.getElementById('searchInput').addEventListener('keyup', (e) => {
                 if (e.key === 'Enter') performSearch();
             });
+            document.querySelectorAll('.filter-chip').forEach(btn => {
+                btn.addEventListener('click', () => setHistoryFilterMode(btn.dataset.mode));
+            });
             document.getElementById('historyMonthFilter').addEventListener('change', () => {
                 if (document.getElementById('historyMonthFilter').value) {
-                    document.getElementById('historyDateFilter').value = '';
+                    setHistoryFilterMode('month');
                 }
             });
             document.getElementById('historyDateFilter').addEventListener('change', () => {
                 if (document.getElementById('historyDateFilter').value) {
-                    document.getElementById('historyMonthFilter').value = '';
+                    setHistoryFilterMode('day');
                 }
             });
+            setHistoryFilterMode('all');
  
             document.getElementById('showMoreBtn').addEventListener('click', () => {
                 showAllHistory = true;
@@ -1235,6 +1559,7 @@
             document.getElementById('importBtn').addEventListener('click', () => toggleModal('importModal', true));
             document.getElementById('closeImportModal').addEventListener('click', () => toggleModal('importModal', false));
             document.getElementById('realImportBtn').addEventListener('click', executeImport);
+            document.getElementById('dedupeBtn').addEventListener('click', cleanDuplicateDates);
         });
  
         function initDate() {
@@ -1866,15 +2191,51 @@
             };
         }
  
+        function setHistoryFilterMode(mode) {
+            historyFilterMode = mode;
+            document.querySelectorAll('.filter-chip').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+
+            const monthField = document.getElementById('monthFilterField');
+            const dateField = document.getElementById('dateFilterField');
+            const monthInput = document.getElementById('historyMonthFilter');
+            const dateInput = document.getElementById('historyDateFilter');
+
+            monthField.style.display = (mode === 'month') ? 'block' : 'none';
+            dateField.style.display = (mode === 'day') ? 'block' : 'none';
+
+            if (mode !== 'month') monthInput.value = '';
+            if (mode !== 'day') dateInput.value = '';
+        }
+
+        function updateHistoryFilterSummary(totalCount, keyword = '', dateFilter = '', monthFilter = '') {
+            const summaryEl = document.getElementById('historyFilterSummary');
+            if (!summaryEl) return;
+
+            const parts = [];
+            if (monthFilter) parts.push(`${monthFilter.replace('-', '년 ')}월`);
+            if (dateFilter) parts.push(dateFilter);
+            if (keyword) parts.push(`"${keyword}" 검색`);
+
+            if (!isSearching || parts.length === 0) {
+                summaryEl.innerText = `전체 기록 ${totalCount}개를 보는 중`;
+                return;
+            }
+
+            summaryEl.innerText = `${parts.join(' · ')} 결과 ${totalCount}개`;
+        }
+
         // --- Search & Filtering ---
         function performSearch() {
             const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
-            const monthFilter = document.getElementById('historyMonthFilter').value;
-            const dateFilter = document.getElementById('historyDateFilter').value;
+            const dateFilter = historyFilterMode === 'day' ? document.getElementById('historyDateFilter').value : '';
+            const monthFilter = historyFilterMode === 'month' ? document.getElementById('historyMonthFilter').value : '';
             
-            if(!keyword && !monthFilter && !dateFilter) return showToast("검색어, 월, 날짜 중 하나를 입력하세요.");
+            if(!keyword && !dateFilter && !monthFilter) return showToast("검색어나 조회 조건을 입력하세요.");
             
             isSearching = true;
+            showAllHistory = true;
             renderHistoryList(keyword, dateFilter, monthFilter);
         }
  
@@ -1882,6 +2243,7 @@
             document.getElementById('searchInput').value = '';
             document.getElementById('historyMonthFilter').value = '';
             document.getElementById('historyDateFilter').value = '';
+            setHistoryFilterMode('all');
             isSearching = false;
             showAllHistory = false;
             renderHistoryList();
@@ -1936,6 +2298,8 @@
                 btnMore.style.display = 'none';
             }
  
+            updateHistoryFilterSummary(totalCount, keyword, dateFilter, monthFilter);
+
             if(visibleList.length === 0) {
                 container.innerHTML = `<div style="text-align:center; color:#9ca3af; padding:30px;">${isSearching ? '검색 결과가 없습니다.' : '기록이 없습니다.'}</div>`;
                 return;
@@ -2089,31 +2453,85 @@
                 const data = JSON.parse(jsonStr);
                 if(!Array.isArray(data)) throw new Error("데이터 형식이 올바르지 않습니다.");
  
-                if(!confirm(`총 ${data.length}개의 데이터를 복구(추가)하시겠습니까?`)) return;
+                if(!confirm(`총 ${data.length}개의 데이터를 가져옵니다.\n같은 날짜의 기존 기록은 삭제하고 새 기록으로 교체할까요?`)) return;
  
                 const tx = db.transaction(['entries'], 'readwrite');
                 const store = tx.objectStore('entries');
  
-                let count = 0;
-                data.forEach(item => {
-                    delete item.id; 
-                    store.add(item);
-                    count++;
-                });
+                store.getAll().onsuccess = (e) => {
+                    const existing = e.target.result || [];
+                    const importDates = new Set(data.map(item => item.date).filter(Boolean));
  
-                tx.oncomplete = () => {
-                    showToast(`✅ ${count}개 데이터 복구 완료!`);
-                    document.getElementById('importText').value = '';
-                    toggleModal('importModal', false);
-                    loadRecords();
+                    // 같은 날짜의 기존 기록 삭제: 중복 방지
+                    existing.forEach(record => {
+                        if(importDates.has(record.date)) {
+                            store.delete(record.id);
+                        }
+                    });
+ 
+                    let count = 0;
+                    data.forEach(item => {
+                        const newItem = { ...item };
+                        delete newItem.id;
+                        store.add(newItem);
+                        count++;
+                    });
+ 
+                    tx.oncomplete = () => {
+                        showToast(`✅ ${count}개 데이터 가져오기 완료!`);
+                        document.getElementById('importText').value = '';
+                        toggleModal('importModal', false);
+                        loadRecords();
+                    };
+                    tx.onerror = () => showToast("❌ 데이터 저장 중 오류 발생");
                 };
-                tx.onerror = () => showToast("❌ 데이터 저장 중 오류 발생");
  
             } catch (e) {
                 showToast("❌ 잘못된 JSON 형식입니다.");
             }
         }
-    </script>
+
+        function cleanDuplicateDates() {
+            if(!confirm("같은 날짜 기록이 여러 개 있으면 가장 나중에 저장된 기록 1개만 남깁니다.\n진행할까요?")) return;
+
+            const tx = db.transaction(['entries'], 'readwrite');
+            const store = tx.objectStore('entries');
+
+            store.getAll().onsuccess = (e) => {
+                const records = e.target.result || [];
+                const groups = {};
+
+                records.forEach(record => {
+                    if(!record.date) return;
+                    if(!groups[record.date]) groups[record.date] = [];
+                    groups[record.date].push(record);
+                });
+
+                let deleteCount = 0;
+
+                Object.values(groups).forEach(group => {
+                    if(group.length <= 1) return;
+
+                    // id가 클수록 나중에 저장된 기록이므로 최신 기록을 유지
+                    group.sort((a, b) => (b.id || 0) - (a.id || 0));
+                    const keep = group[0];
+
+                    group.slice(1).forEach(record => {
+                        if(record.id !== keep.id) {
+                            store.delete(record.id);
+                            deleteCount++;
+                        }
+                    });
+                });
+
+                tx.oncomplete = () => {
+                    showToast(`🧹 중복 ${deleteCount}개 정리 완료!`);
+                    toggleModal('importModal', false);
+                    loadRecords();
+                };
+                tx.onerror = () => showToast("❌ 중복 정리 중 오류 발생");
+            };
+        }    </script>
 <script type="module" src="/index.tsx"></script>
 </body>
 </html>
