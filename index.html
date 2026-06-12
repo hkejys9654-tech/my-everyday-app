@@ -324,11 +324,23 @@
             display: flex;
             gap: 8px;
             align-items: center;
+            flex-wrap: wrap;
         }
         
         .search-container input[type="text"] {
-            flex: 1; 
+            flex: 1 1 100%; 
             min-width: 0; 
+        }
+
+        .search-container input[type="month"] {
+            flex: 1;
+            min-width: 120px;
+            padding: 10px;
+            border: 1px solid var(--primary);
+            border-radius: 10px;
+            background: #fff;
+            cursor: pointer;
+            color: var(--text-main);
         }
  
         .btn-small {
@@ -960,6 +972,7 @@
                         </div>
                         <div class="search-container">
                             <input type="text" id="searchInput" placeholder="내용 검색 (기분, 운동, 한마디 등)">
+                            <input type="month" id="historyMonthFilter" title="월별로 필터링">
                             <input type="date" id="historyDateFilter" style="width: 45px; padding: 10px; border: 1px solid var(--primary); border-radius: 10px; background: #fff; cursor: pointer; color: transparent; position: relative;" title="날짜로 필터링">
                             <button class="btn-small btn-primary-outline" id="searchBtn">검색</button>
                             <button class="btn-small btn-secondary" id="searchResetBtn">초기화</button>
@@ -1197,6 +1210,16 @@
             document.getElementById('searchResetBtn').addEventListener('click', resetSearch);
             document.getElementById('searchInput').addEventListener('keyup', (e) => {
                 if (e.key === 'Enter') performSearch();
+            });
+            document.getElementById('historyMonthFilter').addEventListener('change', () => {
+                if (document.getElementById('historyMonthFilter').value) {
+                    document.getElementById('historyDateFilter').value = '';
+                }
+            });
+            document.getElementById('historyDateFilter').addEventListener('change', () => {
+                if (document.getElementById('historyDateFilter').value) {
+                    document.getElementById('historyMonthFilter').value = '';
+                }
             });
  
             document.getElementById('showMoreBtn').addEventListener('click', () => {
@@ -1846,23 +1869,25 @@
         // --- Search & Filtering ---
         function performSearch() {
             const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+            const monthFilter = document.getElementById('historyMonthFilter').value;
             const dateFilter = document.getElementById('historyDateFilter').value;
             
-            if(!keyword && !dateFilter) return showToast("검색어나 날짜를 입력하세요.");
+            if(!keyword && !monthFilter && !dateFilter) return showToast("검색어, 월, 날짜 중 하나를 입력하세요.");
             
             isSearching = true;
-            renderHistoryList(keyword, dateFilter);
+            renderHistoryList(keyword, dateFilter, monthFilter);
         }
  
         function resetSearch() {
             document.getElementById('searchInput').value = '';
+            document.getElementById('historyMonthFilter').value = '';
             document.getElementById('historyDateFilter').value = '';
             isSearching = false;
             showAllHistory = false;
             renderHistoryList();
         }
  
-        function renderHistoryList(keyword = '', dateFilter = '') {
+        function renderHistoryList(keyword = '', dateFilter = '', monthFilter = '') {
             const container = document.getElementById('historyList');
             const btnMore = document.getElementById('showMoreBtn');
  
@@ -1887,6 +1912,10 @@
                             r.habits.exercise.list.map(ex => ex.name || ex.routineId).join(' ')
                         ].join(' ').toLowerCase();
                         if(!searchableText.includes(keyword)) match = false;
+                    }
+                    
+                    if(monthFilter) {
+                        if(!r.date || !r.date.startsWith(monthFilter)) match = false;
                     }
                     
                     if(dateFilter) {
