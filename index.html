@@ -1,4 +1,4 @@
-<!-- Version 2.4 (Stacked Bar Chart - 3 Group Classification) -->
+<!-- Version 2.5 (Splash Screen + Quick Fill from Last Record) -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -58,6 +58,78 @@
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
+        }
+
+        /* === Splash Screen === */
+        #splash {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 9999;
+            background: linear-gradient(160deg, #132742 0%, #1f3b63 55%, #35557f 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.45s ease, visibility 0.45s ease;
+        }
+        #splash.hide {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .splash-inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            animation: splashPop 0.7s cubic-bezier(.2,.8,.2,1);
+        }
+        .splash-icon {
+            width: 82px;
+            height: 82px;
+            border-radius: 24px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.22);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.1rem;
+            color: #fff;
+            box-shadow: 0 18px 40px rgba(0,0,0,0.28);
+            margin-bottom: 6px;
+        }
+        .splash-title {
+            color: #fff;
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        .splash-sub {
+            color: rgba(255,255,255,0.65);
+            font-size: 0.85rem;
+            font-weight: 300;
+        }
+        .splash-bar {
+            width: 120px;
+            height: 3px;
+            border-radius: 3px;
+            background: rgba(255,255,255,0.18);
+            overflow: hidden;
+            margin-top: 18px;
+        }
+        .splash-bar span {
+            display: block;
+            height: 100%;
+            width: 0%;
+            background: #fff;
+            border-radius: 3px;
+            animation: splashLoad 1.5s ease-in-out forwards;
+        }
+        @keyframes splashPop {
+            from { opacity: 0; transform: translateY(14px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes splashLoad {
+            from { width: 0%; }
+            to { width: 100%; }
         }
  
         /* Header */
@@ -286,6 +358,52 @@
             cursor: pointer;
             padding: 8px;
             display: flex; align-items: center; justify-content: center;
+        }
+
+        /* === Quick Fill (지난 기록 불러오기) === */
+        .btn-quick-fill {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 16px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary) 0%, #35557f 100%);
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.92rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 16px rgba(31, 59, 99, 0.18);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: transform 0.1s;
+        }
+        .btn-quick-fill:active { transform: scale(0.98); }
+
+        .btn-load-last {
+            width: 100%;
+            padding: 9px;
+            margin-bottom: 10px;
+            border: 1px solid var(--primary-soft);
+            border-radius: 10px;
+            background: #f7faff;
+            color: var(--primary);
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-load-last:hover { background: var(--primary-light); }
+
+        .quick-fill-hint {
+            font-size: 0.76rem;
+            color: var(--text-sub);
+            text-align: center;
+            margin: -10px 0 14px;
+            line-height: 1.5;
         }
  
         /* Exercise Specifics */
@@ -588,7 +706,7 @@
             color: white;
         }
  
-        /* === Stacked Bar Chart (NEW: 월별 스택 막대) === */
+        /* === Stacked Bar Chart (월별 스택 막대) === */
         .stack-chart-wrapper {
             display: flex;
             flex-direction: column;
@@ -1183,6 +1301,16 @@
 <link rel="stylesheet" href="/index.css">
 </head>
 <body>
+    <!-- Splash Screen -->
+    <div id="splash">
+        <div class="splash-inner">
+            <div class="splash-icon"><i class="fa-solid fa-check-to-slot"></i></div>
+            <div class="splash-title">Everyday Checkup</div>
+            <div class="splash-sub">오늘 하루를 기록하는 시간</div>
+            <div class="splash-bar"><span></span></div>
+        </div>
+    </div>
+
     <div id="app">
         <header>
             <h1><i class="fa-solid fa-check-to-slot"></i> Everyday Checkup</h1>
@@ -1224,6 +1352,11 @@
  
                 <div class="card">
                     <div class="section-title"><i class="fa-solid fa-check-double"></i> 습관 체크</div>
+
+                    <button class="btn-quick-fill" id="quickFillBtn">
+                        <i class="fa-solid fa-rotate-left"></i> 어제 기록 그대로 가져오기
+                    </button>
+                    <div class="quick-fill-hint">기도·운동·영어를 지난 기록 그대로 불러와요. 불러온 뒤 무게·횟수만 고치면 끝!</div>
                     
                     <div class="habit-block">
                         <div class="habit-header" id="header-prayer">
@@ -1231,6 +1364,7 @@
                             <div class="toggle-switch" id="toggle-prayer"></div>
                         </div>
                         <div class="sub-form" id="sub-prayer">
+                            <button class="btn-load-last" onclick="loadLastPrayer()"><i class="fa-solid fa-clock-rotate-left"></i> 지난 기도 대상 불러오기</button>
                             <div class="chip-grid" id="prayerContainer" style="grid-template-columns: repeat(3, 1fr);"></div>
                         </div>
                     </div>
@@ -1241,6 +1375,7 @@
                             <div class="toggle-switch" id="toggle-exercise"></div>
                         </div>
                         <div class="sub-form" id="sub-exercise">
+                            <button class="btn-load-last" onclick="loadLastExercise()"><i class="fa-solid fa-clock-rotate-left"></i> 지난 운동 그대로 불러오기</button>
                             <div id="exerciseList" class="dynamic-list"></div>
                             <button class="btn-add" onclick="addExerciseBlock()">+ 라운드(세트 그룹) 추가</button>
                         </div>
@@ -1252,6 +1387,7 @@
                             <div class="toggle-switch" id="toggle-english"></div>
                         </div>
                         <div class="sub-form" id="sub-english">
+                            <button class="btn-load-last" onclick="loadLastEnglish()"><i class="fa-solid fa-clock-rotate-left"></i> 지난 영어 기록 불러오기</button>
                             <div id="englishList" class="dynamic-list"></div>
                             <button class="btn-add" onclick="addEnglishRow()">+ 공부 항목 추가</button>
                         </div>
@@ -1512,8 +1648,18 @@
             negative: { label: '부정', color: '#ef4444', icon: '🔴' }
         };
  
+        // --- Splash ---
+        function hideSplash() {
+            const splash = document.getElementById('splash');
+            if (!splash) return;
+            splash.classList.add('hide');
+            setTimeout(() => { splash.style.display = 'none'; }, 500);
+        }
+ 
         // --- Init ---
         document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(hideSplash, 1500);
+ 
             initDB();
             initDate();
             renderMultiSelectChips('moodContainer', MOODS, selectedMoods);
@@ -1525,7 +1671,10 @@
             setupHabitToggle('english', addEnglishRow);
  
             // Main Actions
-            document.getElementById('saveBtn').addEventListener('click', saveRecord);            // Search Actions
+            document.getElementById('saveBtn').addEventListener('click', saveRecord);
+            document.getElementById('quickFillBtn').addEventListener('click', quickFillFromLast);
+
+            // Search Actions
             document.getElementById('searchBtn').addEventListener('click', performSearch);
             document.getElementById('searchResetBtn').addEventListener('click', resetSearch);
             document.getElementById('searchInput').addEventListener('keyup', (e) => {
@@ -1560,6 +1709,11 @@
             document.getElementById('closeImportModal').addEventListener('click', () => toggleModal('importModal', false));
             document.getElementById('realImportBtn').addEventListener('click', executeImport);
             document.getElementById('dedupeBtn').addEventListener('click', cleanDuplicateDates);
+        });
+
+        // 혹시 DOMContentLoaded 이전에 로딩이 끝난 경우 대비
+        window.addEventListener('load', () => {
+            setTimeout(hideSplash, 1500);
         });
  
         function initDate() {
@@ -1608,6 +1762,101 @@
                 }
             });
         }
+
+        // --- 지난 기록 불러오기 (Quick Fill) ---
+        function setSelectValue(sel, val) {
+            if (!sel || val === undefined || val === null || val === '') return;
+            const exists = Array.from(sel.options).some(o => o.value === val);
+            if (!exists) {
+                const opt = document.createElement('option');
+                opt.value = val;
+                opt.textContent = val;
+                sel.appendChild(opt);
+            }
+            sel.value = val;
+        }
+
+        function openHabit(key) {
+            const toggle = document.getElementById(`toggle-${key}`);
+            const sub = document.getElementById(`sub-${key}`);
+            if (toggle) toggle.classList.add('active');
+            if (sub) sub.classList.add('open');
+        }
+
+        // 현재 선택된 날짜보다 이전의 가장 최근 기록을 찾음
+        function findLastRecord(predicate) {
+            const cur = document.getElementById('dateInput').value;
+            const list = allRecordsCache.filter(r => {
+                if (!r || !r.date) return false;
+                if (cur && r.date >= cur) return false;
+                try { return predicate(r); } catch (e) { return false; }
+            });
+            list.sort((a, b) => {
+                if (a.date !== b.date) return a.date < b.date ? 1 : -1;
+                return (b.timestamp || 0) - (a.timestamp || 0);
+            });
+            return list[0] || null;
+        }
+
+        function loadLastExercise(silent) {
+            const src = findLastRecord(r => r.habits && r.habits.exercise && r.habits.exercise.done
+                && Array.isArray(r.habits.exercise.list) && r.habits.exercise.list.length > 0);
+            if (!src) {
+                if (!silent) showToast("불러올 지난 운동 기록이 없어요.");
+                return false;
+            }
+            openHabit('exercise');
+            const list = document.getElementById('exerciseList');
+            list.innerHTML = '';
+            src.habits.exercise.list.forEach(block => addExerciseBlock(block));
+            if (!silent) showToast(`💪 ${src.date} 운동을 불러왔어요!`);
+            return true;
+        }
+
+        function loadLastEnglish(silent) {
+            const src = findLastRecord(r => r.habits && r.habits.english && r.habits.english.done
+                && Array.isArray(r.habits.english.items) && r.habits.english.items.length > 0);
+            if (!src) {
+                if (!silent) showToast("불러올 지난 영어 기록이 없어요.");
+                return false;
+            }
+            openHabit('english');
+            const list = document.getElementById('englishList');
+            list.innerHTML = '';
+            src.habits.english.items.forEach(item => addEnglishRow(item));
+            if (!silent) showToast(`📚 ${src.date} 영어 기록을 불러왔어요!`);
+            return true;
+        }
+
+        function loadLastPrayer(silent) {
+            const src = findLastRecord(r => r.habits && r.habits.prayer && r.habits.prayer.done
+                && Array.isArray(r.habits.prayer.targets) && r.habits.prayer.targets.length > 0);
+            if (!src) {
+                if (!silent) showToast("불러올 지난 기도 기록이 없어요.");
+                return false;
+            }
+            openHabit('prayer');
+            selectedPrayerTargets.clear();
+            src.habits.prayer.targets.forEach(t => selectedPrayerTargets.add(t));
+            renderMultiSelectChips('prayerContainer', PRAYER_TARGETS, selectedPrayerTargets);
+            if (!silent) showToast(`🙏 ${src.date} 기도 대상을 불러왔어요!`);
+            return true;
+        }
+
+        function quickFillFromLast() {
+            const p = loadLastPrayer(true);
+            const e = loadLastExercise(true);
+            const en = loadLastEnglish(true);
+            if (!p && !e && !en) {
+                showToast("불러올 지난 기록이 없어요.");
+                return;
+            }
+            const parts = [];
+            if (p) parts.push('기도');
+            if (e) parts.push('운동');
+            if (en) parts.push('영어');
+            showToast(`↩ ${parts.join('·')} 불러왔어요!`);
+        }
  
         // --- Dynamic Rows ---
         function addPrayerRow() {
@@ -1621,7 +1870,7 @@
             list.appendChild(row);
         }
  
-        function addEnglishRow() {
+        function addEnglishRow(data) {
             const list = document.getElementById('englishList');
             const row = document.createElement('div');
             row.className = 'exercise-block';
@@ -1647,9 +1896,15 @@
                 </div>
             `;
             list.appendChild(row);
+
+            if (data && typeof data === 'object' && !(data instanceof Event)) {
+                setSelectValue(row.querySelector('.english-type'), data.type);
+                setSelectValue(row.querySelector('.english-duration'), data.duration);
+                setSelectValue(row.querySelector('.english-count'), data.count);
+            }
         }
  
-        function addExerciseBlock() {
+        function addExerciseBlock(data) {
             const list = document.getElementById('exerciseList');
             const blockCount = list.querySelectorAll('.exercise-block').length + 1;
             const block = document.createElement('div');
@@ -1683,10 +1938,20 @@
                 </div>
             `;
             list.appendChild(block);
-            addExerciseFieldToBlock(block.querySelector('.btn-add-sub'));
+
+            const isData = data && typeof data === 'object' && !(data instanceof Event) && Array.isArray(data.exercises);
+
+            if (isData && data.exercises.length > 0) {
+                data.exercises.forEach(ex => addExerciseFieldToBlock(block.querySelector('.btn-add-sub'), ex));
+                setSelectValue(block.querySelector('.block-sets'), data.sets);
+                setSelectValue(block.querySelector('.block-set-rest'), data.setRest);
+                setSelectValue(block.querySelector('.block-round-rest'), data.roundRest);
+            } else {
+                addExerciseFieldToBlock(block.querySelector('.btn-add-sub'));
+            }
         }
  
-        function addExerciseFieldToBlock(btn) {
+        function addExerciseFieldToBlock(btn, exData) {
             const container = btn.previousElementSibling;
             const item = document.createElement('div');
             item.className = 'block-exercise-item';
@@ -1718,14 +1983,23 @@
             `;
             
             const nameSel = item.querySelector('.sub-ex-name');
-            nameSel.addEventListener('change', (e) => {
-                const isRunning = e.target.value === '런닝/조깅';
+            const applyRunningLayout = (value) => {
+                const isRunning = value === '런닝/조깅';
                 item.querySelector('.sub-weight-box').style.display = isRunning ? 'none' : 'block';
                 item.querySelector('.sub-rep-box').style.display = isRunning ? 'none' : 'block';
                 item.querySelector('.sub-dur-box').style.display = isRunning ? 'block' : 'none';
-            });
+            };
+            nameSel.addEventListener('change', (e) => applyRunningLayout(e.target.value));
  
             container.appendChild(item);
+
+            if (exData && typeof exData === 'object' && !(exData instanceof Event)) {
+                setSelectValue(nameSel, exData.name);
+                setSelectValue(item.querySelector('.sub-ex-weight'), exData.weight);
+                setSelectValue(item.querySelector('.sub-ex-reps'), exData.reps);
+                setSelectValue(item.querySelector('.sub-ex-duration'), exData.duration);
+                applyRunningLayout(nameSel.value);
+            }
         }
  
         function removeExerciseField(btn) {
@@ -1899,7 +2173,7 @@
             renderBarChart('conditionChart', CONDITIONS, condCounts);
         }
  
-        // 🌟 NEW: 스택 막대 차트 (긍정/중립/부정 3그룹)
+        // 스택 막대 차트 (긍정/중립/부정 3그룹)
         function renderOverallStats() {
             document.getElementById('overallCurrentYear').innerText = `${selectedOverallYear}년`;
  
@@ -1949,7 +2223,6 @@
                     const neuPct = (groupCounts.neutral / totalMoodOccurrences) * 100;
                     const negPct = (groupCounts.negative / totalMoodOccurrences) * 100;
  
-                    // 5% 이상만 숫자 표시
                     const showPosNum = posPct >= 12;
                     const showNeuNum = neuPct >= 12;
                     const showNegNum = negPct >= 12;
@@ -1973,10 +2246,8 @@
                 trendContainer.appendChild(row);
             });
  
-            // 상세 패널 렌더링
             renderMonthDetailPanel();
  
-            // 3그룹 범례
             const legendContainer = document.getElementById('moodLegend');
             legendContainer.innerHTML = Object.entries(GROUP_INFO).map(([key, info]) => `
                 <div class="group-legend-item">
@@ -2044,7 +2315,6 @@
                 });
             });
  
-            // 그룹별로 묶어서 정렬
             const grouped = { positive: [], neutral: [], negative: [] };
             Object.entries(monthlyMoodCounts).forEach(([id, count]) => {
                 const group = MOOD_GROUP[id];
@@ -2462,7 +2732,6 @@
                     const existing = e.target.result || [];
                     const importDates = new Set(data.map(item => item.date).filter(Boolean));
  
-                    // 같은 날짜의 기존 기록 삭제: 중복 방지
                     existing.forEach(record => {
                         if(importDates.has(record.date)) {
                             store.delete(record.id);
@@ -2512,7 +2781,6 @@
                 Object.values(groups).forEach(group => {
                     if(group.length <= 1) return;
 
-                    // id가 클수록 나중에 저장된 기록이므로 최신 기록을 유지
                     group.sort((a, b) => (b.id || 0) - (a.id || 0));
                     const keep = group[0];
 
@@ -2535,4 +2803,3 @@
 <script type="module" src="/index.tsx"></script>
 </body>
 </html>
- 
