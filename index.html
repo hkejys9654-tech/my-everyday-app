@@ -943,6 +943,22 @@
             margin-bottom: 10px;
             position: relative;
         }
+        .exercise-block .btn-icon {
+            flex: 0 0 auto;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--danger);
+            background: var(--danger-bg);
+            border-radius: 50%;
+        }
+        .exercise-block .btn-icon:hover {
+            color: #fff;
+            background: var(--danger);
+        }
         .btn-add-sub {
             width: 100%;
             padding: 8px;
@@ -1912,7 +1928,7 @@
             block.innerHTML = `
                 <div class="block-header">
                     <span class="block-title"><i class="fa-solid fa-layer-group"></i> ${blockCount}라운드 / 세트 군</span>
-                    <button class="btn-icon" onclick="this.closest('.exercise-block').remove()"><i class="fa-solid fa-trash-can"></i></button>
+                    <button type="button" class="btn-icon" onclick="removeExerciseBlock(this)" title="이 운동 그룹 삭제" aria-label="이 운동 그룹 삭제"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="exercises-container"></div>
                 <button class="btn-add-sub" onclick="addExerciseFieldToBlock(this)">+ 운동 추가 (슈퍼세트 조합)</button>
@@ -1964,7 +1980,7 @@
             item.innerHTML = `
                 <div style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
                     <select class="sub-ex-name" style="flex:1; font-weight:700; border:none; background:transparent;">${nameOpts}</select>
-                    <button class="btn-icon" onclick="removeExerciseField(this)"><i class="fa-solid fa-circle-minus"></i></button>
+                    <button type="button" class="btn-icon" onclick="removeExerciseField(this)" title="이 운동 삭제" aria-label="이 운동 삭제"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="sub-ex-options" style="display:flex; gap:8px;">
                     <div style="flex:1;" class="sub-weight-box">
@@ -2002,12 +2018,25 @@
             }
         }
  
+        function renumberExerciseBlocks() {
+            document.querySelectorAll('#exerciseList > .exercise-block').forEach((block, index) => {
+                const title = block.querySelector('.block-title');
+                if (title) title.innerHTML = `<i class="fa-solid fa-layer-group"></i> ${index + 1}라운드 / 세트 군`;
+            });
+        }
+
+        function removeExerciseBlock(btn) {
+            btn.closest('.exercise-block')?.remove();
+            renumberExerciseBlocks();
+        }
+
         function removeExerciseField(btn) {
-            const container = btn.closest('.exercises-container');
-            if (container.children.length > 1) {
-                btn.closest('.block-exercise-item').remove();
-            } else {
-                showToast("최소 하나의 운동은 있어야 합니다.");
+            const block = btn.closest('.exercise-block');
+            btn.closest('.block-exercise-item')?.remove();
+
+            if (block && block.querySelectorAll('.block-exercise-item').length === 0) {
+                block.remove();
+                renumberExerciseBlocks();
             }
         }
  
