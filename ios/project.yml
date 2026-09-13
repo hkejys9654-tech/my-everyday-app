@@ -1,0 +1,25 @@
+name: EverydayCheckup
+options:
+  bundleIdPrefix: com.everydaycheckup
+  deploymentTarget:
+    iOS: '17.0'
+targets:
+  EverydayCheckup:
+    type: application
+    platform: iOS
+    sources:
+      - path: EverydayCheckup
+      - path: ../index.html
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.everydaycheckup.personal
+        SWIFT_VERSION: '5.0'
+        TARGETED_DEVICE_FAMILY: '1'
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Everyday Checkup
+        INFOPLIST_KEY_NSHealthShareUsageDescription: 운동 기록에 운동 시간, 거리, 칼로리와 심박수를 가져오기 위해 건강 데이터 읽기를 요청합니다.
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        CODE_SIGN_ENTITLEMENTS: EverydayCheckup/EverydayCheckup.entitlements
+    scheme:
+      testTargets: []

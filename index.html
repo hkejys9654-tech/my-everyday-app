@@ -2113,6 +2113,10 @@
                 },
                 reflection
             };
+            if (window.checkupHealth) {
+                record.healthWorkouts = window.checkupHealth.forDate(date);
+                if (record.healthWorkouts.length) record.habits.exercise.done = true;
+            }
  
             const tx = db.transaction(['entries'], 'readwrite');
             tx.objectStore('entries').add(record).onsuccess = () => {
@@ -2648,6 +2652,10 @@
                     }
                 }
  
+                if (window.checkupHealth && Array.isArray(r.healthWorkouts)) {
+                    const summary = window.checkupHealth.summary(r.healthWorkouts);
+                    if (summary) exerciseStr += ` · ${summary}`;
+                }
                 return `
                     <div class="history-card">
                         <button class="btn-delete" onclick="deleteRecord(${r.id})"><i class="fa-solid fa-trash"></i></button>
@@ -2675,6 +2683,7 @@
         }
  
         function resetForm() {
+            if (window.checkupHealth) window.checkupHealth.clear();
             document.getElementById('moodDetail').value = '';
             document.getElementById('conditionDetail').value = '';
             document.getElementById('reflectionInput').value = '';
