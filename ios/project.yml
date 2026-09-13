@@ -11,6 +11,8 @@ targets:
       - path: EverydayCheckup
       - path: ../index.html
         buildPhase: resources
+      - path: ../workout-dashboard.js
+        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.everydaycheckup.personal
